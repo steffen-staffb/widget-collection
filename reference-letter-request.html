@@ -111,7 +111,7 @@
         .cw-section-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
         .cw-section-sub { font-size: 13px; color: var(--text-light); margin-bottom: 14px; }
 
-        .cw-field { margin-bottom: 12px; }
+        .cw-field { margin-bottom: 10px; }
         .cw-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
         .cw-input, .cw-select, .cw-textarea {
             width: 100%;
@@ -128,7 +128,7 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
         }
-        .cw-textarea { resize: vertical; min-height: 50px; }
+        .cw-textarea { resize: vertical; min-height: 46px; }
         .cw-row { display: flex; gap: 12px; }
         .cw-row > * { flex: 1; }
         .cw-hint { font-size: 12px; color: var(--text-light); margin-top: 5px; }
@@ -321,9 +321,15 @@
                 <div class="cw-section-title" data-i18n="s2Title">Your details</div>
                 <div class="cw-section-sub" data-i18n="s2Sub">A few details help HR tailor your reference.</div>
 
-                <div class="cw-field">
-                    <label class="cw-label" for="cwReason" data-i18n="reasonLabel">Reason for the request</label>
-                    <select id="cwReason" class="cw-select"></select>
+                <div class="cw-row">
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwReason" data-i18n="reasonLabel">Reason for the request</label>
+                        <select id="cwReason" class="cw-select"></select>
+                    </div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwNeeded" data-i18n="neededLabel">Needed by</label>
+                        <input type="date" id="cwNeeded" class="cw-input">
+                    </div>
                 </div>
 
                 <div class="cw-field" id="cwFocusField">
@@ -333,18 +339,13 @@
 
                 <div class="cw-row">
                     <div class="cw-field">
-                        <label class="cw-label" for="cwNeeded" data-i18n="neededLabel">Needed by</label>
-                        <input type="date" id="cwNeeded" class="cw-input">
-                    </div>
-                    <div class="cw-field">
                         <label class="cw-label" for="cwLangSel" data-i18n="langLabel">Language of the letter</label>
                         <select id="cwLangSel" class="cw-select"></select>
                     </div>
-                </div>
-
-                <div class="cw-field">
-                    <label class="cw-label" data-i18n="deliveryLabel">Delivery</label>
-                    <div class="cw-chips" id="cwDelivery"></div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwDelivery" data-i18n="deliveryLabel">Delivery</label>
+                        <select id="cwDelivery" class="cw-select"></select>
+                    </div>
                 </div>
 
                 <div class="cw-field">
@@ -739,14 +740,10 @@ function buildLangSelect() {
 }
 
 function buildDelivery() {
-  const wrap = $('#cwDelivery');
-  wrap.innerHTML = DELIVERY.map(d => `<span class="cw-chip ${d === state.delivery ? 'sel' : ''}" data-del="${d}">${t['d_' + d]}</span>`).join('');
-  wrap.querySelectorAll('.cw-chip').forEach(c => {
-    c.onclick = () => {
-      state.delivery = c.dataset.del;
-      wrap.querySelectorAll('.cw-chip').forEach(o => o.classList.toggle('sel', o === c));
-    };
-  });
+  const sel = $('#cwDelivery');
+  sel.innerHTML = DELIVERY.map(d => `<option value="${d}">${t['d_' + d]}</option>`).join('');
+  sel.value = state.delivery;
+  sel.onchange = e => { state.delivery = e.target.value; };
 }
 
 // — Rendering —
