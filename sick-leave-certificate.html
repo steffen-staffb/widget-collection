@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Staffbase brand color via ?brand= URL param (sb-brand-url-param) -->
+    <script>(function(){try{var b=new URLSearchParams(location.search).get('brand');if(b&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(b)){document.documentElement.style.setProperty('--sb-brand',b);}}catch(e){}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="widget-name" content="Sick Leave &amp; Certificate">
+    <meta name="widget-description" content="Report sick leave and submit a medical certificate in a guided, multi-step self-service flow.">
+    <meta name="widget-tags" content="HR Data, Forms">
+    <title>Sick Leave &amp; Certificate</title>
+    <style>
+        :root {
+            --primary: var(--sb-brand, #2563eb);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #ffffff;
+            --bg-gray: #f9fafb;
+            --border: #e5e7eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: var(--sb-brand, #3b9eff);
+                --success: #34d399;
+                --warning: #fbbf24;
+                --danger: #f87171;
+                --text: #f3f4f6;
+                --text-light: #9ca3af;
+                --bg: #1f2937;
+                --bg-gray: #111827;
+                --border: #374151;
+            }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gray);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cw-wrap { max-width: 640px; margin: 0 auto; }
+
+        .cw-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .cw-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .cw-header-icon {
+            width: 44px; height: 44px; flex: 0 0 44px;
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--primary) 14%, transparent);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-header-icon svg { width: 24px; height: 24px; }
+        .cw-header h1 { font-size: 18px; font-weight: 700; }
+        .cw-header p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+
+        /* Stepper */
+        .cw-stepper {
+            display: flex;
+            padding: 18px 24px 4px;
+            gap: 6px;
+        }
+        .cw-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            text-align: center;
+        }
+        .cw-step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 13px;
+            left: calc(50% + 18px);
+            right: calc(-50% + 18px);
+            height: 2px;
+            background: var(--border);
+        }
+        .cw-step.done:not(:last-child)::after { background: var(--primary); }
+        .cw-step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+            z-index: 1;
+            transition: all .2s;
+        }
+        .cw-step.active .cw-step-dot { border-color: var(--primary); color: var(--primary); }
+        .cw-step.done .cw-step-dot { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .cw-step-label { font-size: 11px; color: var(--text-light); font-weight: 600; max-width: 90px; }
+        .cw-step.active .cw-step-label, .cw-step.done .cw-step-label { color: var(--text); }
+        .cw-step-dot svg { width: 15px; height: 15px; }
+
+        .cw-body { padding: 20px 24px 24px; }
+        .cw-panel { display: none; }
+        .cw-panel.active { display: block; animation: fade .25s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+
+        .cw-section-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .cw-section-sub { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+
+        .cw-field { margin-bottom: 16px; }
+        .cw-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .cw-input, .cw-select, .cw-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .cw-input:focus, .cw-select:focus, .cw-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+        }
+        .cw-textarea { resize: vertical; min-height: 72px; }
+        .cw-row { display: flex; gap: 12px; }
+        .cw-row > * { flex: 1; }
+        .cw-hint { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+
+        /* Segmented choice */
+        .cw-choice { display: flex; gap: 10px; }
+        .cw-choice-opt {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; font-weight: 600;
+            transition: all .15s;
+        }
+        .cw-choice-opt svg { width: 20px; height: 20px; color: var(--text-light); }
+        .cw-choice-opt.sel {
+            border-color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+            color: var(--primary);
+        }
+        .cw-choice-opt.sel svg { color: var(--primary); }
+
+        /* Info banner */
+        .cw-banner {
+            display: flex; gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+        .cw-banner svg { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 1px; }
+        .cw-banner.warn { background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--text); }
+        .cw-banner.warn svg { color: var(--warning); }
+        .cw-banner.info { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--text); }
+        .cw-banner.info svg { color: var(--primary); }
+        .cw-banner strong { display: block; margin-bottom: 2px; }
+
+        /* Dropzone */
+        .cw-drop {
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .15s;
+            background: var(--bg-gray);
+        }
+        .cw-drop:hover, .cw-drop.over { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, transparent); }
+        .cw-drop svg { width: 34px; height: 34px; color: var(--primary); margin-bottom: 10px; }
+        .cw-drop-title { font-size: 14px; font-weight: 600; }
+        .cw-drop-sub { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+
+        .cw-file {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 14px;
+        }
+        .cw-file-ic {
+            width: 38px; height: 38px; flex: 0 0 38px;
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--success) 16%, transparent);
+            color: var(--success);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-file-ic svg { width: 20px; height: 20px; }
+        .cw-file-meta { flex: 1; min-width: 0; }
+        .cw-file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cw-file-size { font-size: 12px; color: var(--text-light); }
+        .cw-file-x {
+            border: none; background: none; cursor: pointer;
+            color: var(--text-light); padding: 6px; border-radius: 8px;
+            display: flex;
+        }
+        .cw-file-x:hover { background: var(--bg-gray); color: var(--danger); }
+        .cw-file-x svg { width: 18px; height: 18px; }
+
+        .cw-later {
+            margin-top: 14px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13px; color: var(--text-light);
+            cursor: pointer;
+            padding: 10px 2px;
+        }
+        .cw-later input { width: 16px; height: 16px; accent-color: var(--primary); }
+
+        /* Summary */
+        .cw-summary { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .cw-sum-row {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cw-sum-row:last-child { border-bottom: none; }
+        .cw-sum-k { color: var(--text-light); }
+        .cw-sum-v { font-weight: 600; text-align: right; }
+
+        /* Badges */
+        .cw-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 9px; border-radius: 999px;
+            white-space: nowrap;
+        }
+        .cw-badge.ok { background: color-mix(in srgb, var(--success) 16%, transparent); color: var(--success); }
+        .cw-badge.pend { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+        .cw-badge.neutral { background: var(--bg-gray); color: var(--text-light); }
+        .cw-badge svg { width: 12px; height: 12px; }
+
+        /* Buttons / footer */
+        .cw-footer {
+            display: flex; justify-content: space-between; gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .cw-btn {
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: inherit;
+        }
+        .cw-btn svg { width: 16px; height: 16px; }
+        .cw-btn-primary { background: var(--primary); color: #fff; }
+        .cw-btn-primary:hover { filter: brightness(1.06); }
+        .cw-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+        .cw-btn-ghost { background: var(--bg); border-color: var(--border); color: var(--text); }
+        .cw-btn-ghost:hover { background: var(--bg-gray); }
+
+        /* Success */
+        .cw-success { text-align: center; padding: 10px 0 6px; }
+        .cw-success-ic {
+            width: 64px; height: 64px; margin: 0 auto 16px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--success) 16%, transparent);
+            color: var(--success);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-success-ic svg { width: 34px; height: 34px; }
+        .cw-success h2 { font-size: 19px; margin-bottom: 6px; }
+        .cw-success p { font-size: 13px; color: var(--text-light); max-width: 420px; margin: 0 auto 8px; }
+        .cw-ref {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 13px; font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--bg-gray);
+            border: 1px solid var(--border);
+            letter-spacing: .5px;
+        }
+
+        /* History */
+        .cw-history { margin-top: 26px; }
+        .cw-history-h { font-size: 13px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+        .cw-hist-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        .cw-hist-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px;
+        }
+        .cw-hist-meta { flex: 1; min-width: 0; }
+        .cw-hist-title { font-size: 13px; font-weight: 600; }
+        .cw-hist-sub { font-size: 12px; color: var(--text-light); }
+    </style>
+</head>
+<body>
+<div class="cw-wrap">
+    <div class="cw-card">
+        <div class="cw-header">
+            <div class="cw-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"/><path d="M12 9v6"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4"/></svg>
+            </div>
+            <div>
+                <h1 data-i18n="appTitle">Report Sick Leave</h1>
+                <p data-i18n="appSub">Notify your manager and submit your medical certificate</p>
+            </div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="cw-stepper" id="cwStepper">
+            <div class="cw-step" data-step="1">
+                <div class="cw-step-dot">1</div>
+                <div class="cw-step-label" data-i18n="step1">Absence</div>
+            </div>
+            <div class="cw-step" data-step="2">
+                <div class="cw-step-dot">2</div>
+                <div class="cw-step-label" data-i18n="step2">Certificate</div>
+            </div>
+            <div class="cw-step" data-step="3">
+                <div class="cw-step-dot">3</div>
+                <div class="cw-step-label" data-i18n="step3">Review</div>
+            </div>
+            <div class="cw-step" data-step="4">
+                <div class="cw-step-dot">4</div>
+                <div class="cw-step-label" data-i18n="step4">Done</div>
+            </div>
+        </div>
+
+        <div class="cw-body">
+            <!-- STEP 1 -->
+            <div class="cw-panel active" data-panel="1">
+                <div class="cw-section-title" data-i18n="s1Title">Your absence</div>
+                <div class="cw-section-sub" data-i18n="s1Sub">Tell us when your illness started and how long you expect to be absent.</div>
+
+                <div class="cw-field">
+                    <label class="cw-label" data-i18n="typeLabel">Type of absence</label>
+                    <div class="cw-choice" id="cwType">
+                        <div class="cw-choice-opt sel" data-val="illness">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H7a2 2 0 0 0-2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h2v-1a3 3 0 0 1 6 0v1h2a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V8a2 2 0 0 0-2-2h-2V5a3 3 0 0 0-3-3Z"/></svg>
+                            <span data-i18n="typeIllness">Illness</span>
+                        </div>
+                        <div class="cw-choice-opt" data-val="accident">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-3 7h5l-3 7"/><path d="M4 22h16"/></svg>
+                            <span data-i18n="typeAccident">Accident</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cw-row">
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwStart" data-i18n="firstDay">First day of absence</label>
+                        <input type="date" id="cwStart" class="cw-input">
+                    </div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwDuration" data-i18n="expDuration">Expected duration</label>
+                        <select id="cwDuration" class="cw-select"></select>
+                    </div>
+                </div>
+
+                <div class="cw-field">
+                    <label class="cw-label" for="cwNote" data-i18n="noteLabel">Note for your manager (optional)</label>
+                    <textarea id="cwNote" class="cw-textarea" data-i18n-placeholder="notePh" placeholder="e.g. reachable by email in the afternoon"></textarea>
+                    <div class="cw-hint" id="cwMgrHint"></div>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="cw-panel" data-panel="2">
+                <div class="cw-section-title" data-i18n="s2Title">Medical certificate</div>
+                <div class="cw-section-sub" data-i18n="s2Sub">Upload a photo or PDF of your doctor's certificate (Arztzeugnis).</div>
+
+                <div class="cw-banner warn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+                    <div>
+                        <strong data-i18n="ruleTitle">A certificate is required from day 3</strong>
+                        <span id="cwDeadline"></span>
+                    </div>
+                </div>
+
+                <div class="cw-drop" id="cwDrop">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                    <div class="cw-drop-title" data-i18n="dropTitle">Tap to upload or drag a file here</div>
+                    <div class="cw-drop-sub" data-i18n="dropSub">PDF, JPG or PNG · max. 10 MB</div>
+                </div>
+                <input type="file" id="cwFileInput" accept="image/*,application/pdf" hidden>
+
+                <div id="cwFileWrap"></div>
+
+                <label class="cw-later">
+                    <input type="checkbox" id="cwLater">
+                    <span data-i18n="laterLabel">I don't have the certificate yet — submit it later</span>
+                </label>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="cw-panel" data-panel="3">
+                <div class="cw-section-title" data-i18n="s3Title">Review &amp; submit</div>
+                <div class="cw-section-sub" data-i18n="s3Sub">Please check your details before submitting.</div>
+                <div class="cw-summary" id="cwSummary"></div>
+                <div class="cw-banner info" style="margin-top:18px;margin-bottom:0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="10"/></svg>
+                    <div id="cwPrivacy"></div>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="cw-panel" data-panel="4">
+                <div class="cw-success">
+                    <div class="cw-success-ic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    </div>
+                    <h2 data-i18n="doneTitle">Sick leave reported</h2>
+                    <p id="cwDoneText"></p>
+                    <div class="cw-ref" id="cwRef">—</div>
+                </div>
+
+                <div class="cw-history">
+                    <div class="cw-history-h" data-i18n="historyTitle">Your recent reports</div>
+                    <div id="cwHistory"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cw-footer" id="cwFooter">
+            <button class="cw-btn cw-btn-ghost" id="cwBack" data-i18n="back">Back</button>
+            <button class="cw-btn cw-btn-primary" id="cwNext">
+                <span data-i18n="next">Continue</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// — Language detection —
+const LANG = (() => {
+  const l = navigator.language || '';
+  if (l.startsWith('de')) return 'de';
+  if (l.startsWith('fr')) return 'fr';
+  if (l.startsWith('es')) return 'es';
+  if (l.startsWith('ja')) return 'ja';
+  if (l === 'en-GB')      return 'en-GB';
+  return 'en-US';
+})();
+document.documentElement.lang = LANG;
+
+const LOCALE = {
+  'de': 'de-CH', 'fr': 'fr-CH', 'es': 'es-ES',
+  'ja': 'ja-JP', 'en-GB': 'en-GB', 'en-US': 'en-US'
+}[LANG];
+
+const MANAGER = 'Martin Wolf';
+
+// — Translations —
+const T = {
+  de: {
+    appTitle: 'Krankmeldung erfassen',
+    appSub: 'Vorgesetzte informieren und Arztzeugnis einreichen',
+    step1: 'Abwesenheit', step2: 'Arztzeugnis', step3: 'Prüfen', step4: 'Fertig',
+    s1Title: 'Deine Abwesenheit',
+    s1Sub: 'Gib an, wann deine Krankheit begonnen hat und wie lange du voraussichtlich fehlst.',
+    typeLabel: 'Art der Abwesenheit',
+    typeIllness: 'Krankheit', typeAccident: 'Unfall',
+    firstDay: 'Erster Abwesenheitstag',
+    expDuration: 'Voraussichtliche Dauer',
+    noteLabel: 'Notiz an Vorgesetzte (optional)',
+    notePh: 'z. B. am Nachmittag per E-Mail erreichbar',
+    mgrHint: 'Automatisch benachrichtigt: ${name}',
+    s2Title: 'Arztzeugnis',
+    s2Sub: 'Lade ein Foto oder PDF deines Arztzeugnisses hoch.',
+    ruleTitle: 'Ab dem 3. Krankheitstag ist ein Arztzeugnis erforderlich',
+    deadlineTxt: 'Einzureichen bis spätestens ${date}.',
+    deadlineOk: 'Für deine voraussichtliche Dauer ist noch kein Zeugnis zwingend – du kannst es trotzdem beilegen.',
+    dropTitle: 'Zum Hochladen tippen oder Datei hierher ziehen',
+    dropSub: 'PDF, JPG oder PNG · max. 10 MB',
+    laterLabel: 'Ich habe das Zeugnis noch nicht – später nachreichen',
+    s3Title: 'Prüfen & absenden',
+    s3Sub: 'Bitte überprüfe deine Angaben vor dem Absenden.',
+    privacy: 'Deine Gesundheitsdaten werden vertraulich behandelt und nur an HR sowie deine zuständige Führungskraft übermittelt.',
+    sumType: 'Art', sumStart: 'Erster Tag', sumDuration: 'Dauer', sumNote: 'Notiz',
+    sumCert: 'Arztzeugnis', sumManager: 'Vorgesetzte(r)',
+    certUploaded: 'Hochgeladen', certLater: 'Wird nachgereicht', certNone: 'Nicht erforderlich', none: '—',
+    doneTitle: 'Krankmeldung übermittelt',
+    doneUploaded: 'Deine Krankmeldung und das Arztzeugnis wurden an HR und ${name} übermittelt.',
+    doneLater: 'Deine Krankmeldung wurde übermittelt. Bitte reiche das Arztzeugnis bis ${date} nach.',
+    doneNone: 'Deine Krankmeldung wurde an HR und ${name} übermittelt.',
+    historyTitle: 'Deine letzten Meldungen',
+    hDays: '${n} Tag(e)', hFrom: 'ab ${date}',
+    stOpen: 'Zeugnis ausstehend', stApproved: 'Genehmigt', stClosed: 'Abgeschlossen',
+    back: 'Zurück', next: 'Weiter', submit: 'Absenden', newReport: 'Neue Meldung',
+    durHalf: 'Halber Tag', durDays: '${n} Tage', durWeek: '1 Woche', durMore: 'Länger / unklar',
+    uploadErr: 'Bitte lade ein Arztzeugnis hoch oder wähle „später nachreichen".',
+    today: 'Heute', yesterday: 'Gestern'
+  },
+  fr: {
+    appTitle: 'Déclarer un arrêt maladie',
+    appSub: 'Informer votre responsable et transmettre le certificat médical',
+    step1: 'Absence', step2: 'Certificat', step3: 'Vérifier', step4: 'Terminé',
+    s1Title: 'Votre absence',
+    s1Sub: 'Indiquez quand votre maladie a commencé et la durée prévue de votre absence.',
+    typeLabel: "Type d'absence",
+    typeIllness: 'Maladie', typeAccident: 'Accident',
+    firstDay: 'Premier jour d\'absence',
+    expDuration: 'Durée prévue',
+    noteLabel: 'Note pour votre responsable (facultatif)',
+    notePh: "p. ex. joignable par e-mail l'après-midi",
+    mgrHint: 'Notifié automatiquement : ${name}',
+    s2Title: 'Certificat médical',
+    s2Sub: 'Téléchargez une photo ou un PDF de votre certificat médical.',
+    ruleTitle: 'Un certificat est requis à partir du 3e jour de maladie',
+    deadlineTxt: 'À transmettre au plus tard le ${date}.',
+    deadlineOk: "Un certificat n'est pas obligatoire pour la durée prévue – vous pouvez toutefois le joindre.",
+    dropTitle: 'Appuyez pour téléverser ou glissez un fichier ici',
+    dropSub: 'PDF, JPG ou PNG · max. 10 Mo',
+    laterLabel: "Je n'ai pas encore le certificat – le transmettre plus tard",
+    s3Title: 'Vérifier et envoyer',
+    s3Sub: "Veuillez vérifier vos informations avant l'envoi.",
+    privacy: 'Vos données de santé sont traitées de manière confidentielle et transmises uniquement aux RH et à votre responsable.',
+    sumType: 'Type', sumStart: 'Premier jour', sumDuration: 'Durée', sumNote: 'Note',
+    sumCert: 'Certificat', sumManager: 'Responsable',
+    certUploaded: 'Téléversé', certLater: 'À transmettre', certNone: 'Non requis', none: '—',
+    doneTitle: 'Arrêt maladie déclaré',
+    doneUploaded: 'Votre déclaration et le certificat ont été transmis aux RH et à ${name}.',
+    doneLater: 'Votre déclaration a été transmise. Veuillez transmettre le certificat avant le ${date}.',
+    doneNone: 'Votre déclaration a été transmise aux RH et à ${name}.',
+    historyTitle: 'Vos déclarations récentes',
+    hDays: '${n} jour(s)', hFrom: 'dès le ${date}',
+    stOpen: 'Certificat en attente', stApproved: 'Approuvé', stClosed: 'Clôturé',
+    back: 'Retour', next: 'Continuer', submit: 'Envoyer', newReport: 'Nouvelle déclaration',
+    durHalf: 'Demi-journée', durDays: '${n} jours', durWeek: '1 semaine', durMore: 'Plus long / incertain',
+    uploadErr: 'Veuillez téléverser un certificat ou choisir « le transmettre plus tard ».',
+    today: "Aujourd'hui", yesterday: 'Hier'
+  },
+  es: {
+    appTitle: 'Notificar baja por enfermedad',
+    appSub: 'Informa a tu responsable y envía el certificado médico',
+    step1: 'Ausencia', step2: 'Certificado', step3: 'Revisar', step4: 'Hecho',
+    s1Title: 'Tu ausencia',
+    s1Sub: 'Indica cuándo empezó tu enfermedad y cuánto tiempo prevés estar ausente.',
+    typeLabel: 'Tipo de ausencia',
+    typeIllness: 'Enfermedad', typeAccident: 'Accidente',
+    firstDay: 'Primer día de ausencia',
+    expDuration: 'Duración prevista',
+    noteLabel: 'Nota para tu responsable (opcional)',
+    notePh: 'p. ej. localizable por correo por la tarde',
+    mgrHint: 'Notificado automáticamente: ${name}',
+    s2Title: 'Certificado médico',
+    s2Sub: 'Sube una foto o PDF de tu certificado médico.',
+    ruleTitle: 'Se requiere certificado a partir del 3.º día de enfermedad',
+    deadlineTxt: 'A entregar como máximo el ${date}.',
+    deadlineOk: 'No es obligatorio un certificado para la duración prevista, pero puedes adjuntarlo igualmente.',
+    dropTitle: 'Toca para subir o arrastra un archivo aquí',
+    dropSub: 'PDF, JPG o PNG · máx. 10 MB',
+    laterLabel: 'Aún no tengo el certificado: lo entregaré más tarde',
+    s3Title: 'Revisar y enviar',
+    s3Sub: 'Comprueba tus datos antes de enviar.',
+    privacy: 'Tus datos de salud se tratan de forma confidencial y solo se envían a RR. HH. y a tu responsable.',
+    sumType: 'Tipo', sumStart: 'Primer día', sumDuration: 'Duración', sumNote: 'Nota',
+    sumCert: 'Certificado', sumManager: 'Responsable',
+    certUploaded: 'Subido', certLater: 'Pendiente de entrega', certNone: 'No requerido', none: '—',
+    doneTitle: 'Baja notificada',
+    doneUploaded: 'Tu notificación y el certificado se enviaron a RR. HH. y a ${name}.',
+    doneLater: 'Tu notificación se envió. Entrega el certificado antes del ${date}.',
+    doneNone: 'Tu notificación se envió a RR. HH. y a ${name}.',
+    historyTitle: 'Tus notificaciones recientes',
+    hDays: '${n} día(s)', hFrom: 'desde el ${date}',
+    stOpen: 'Certificado pendiente', stApproved: 'Aprobado', stClosed: 'Cerrado',
+    back: 'Atrás', next: 'Continuar', submit: 'Enviar', newReport: 'Nueva notificación',
+    durHalf: 'Medio día', durDays: '${n} días', durWeek: '1 semana', durMore: 'Más largo / incierto',
+    uploadErr: 'Sube un certificado o selecciona «entregar más tarde».',
+    today: 'Hoy', yesterday: 'Ayer'
+  },
+  ja: {
+    appTitle: '病気欠勤の届出',
+    appSub: '上司への通知と診断書の提出',
+    step1: '欠勤', step2: '診断書', step3: '確認', step4: '完了',
+    s1Title: '欠勤の内容',
+    s1Sub: '病気がいつ始まったか、どのくらい欠勤する見込みかをご記入ください。',
+    typeLabel: '欠勤の種類',
+    typeIllness: '病気', typeAccident: '怪我',
+    firstDay: '欠勤初日',
+    expDuration: '見込み期間',
+    noteLabel: '上司へのメモ（任意）',
+    notePh: '例：午後はメールで連絡可能',
+    mgrHint: '自動通知先：${name}',
+    s2Title: '診断書',
+    s2Sub: '診断書の写真またはPDFをアップロードしてください。',
+    ruleTitle: '病欠3日目から診断書が必要です',
+    deadlineTxt: '提出期限：${date}',
+    deadlineOk: '見込み期間では診断書は必須ではありませんが、添付も可能です。',
+    dropTitle: 'タップしてアップロード、またはファイルをドラッグ',
+    dropSub: 'PDF・JPG・PNG · 最大10MB',
+    laterLabel: 'まだ診断書がありません — 後で提出する',
+    s3Title: '確認して送信',
+    s3Sub: '送信前に内容をご確認ください。',
+    privacy: '健康情報は厳重に扱われ、人事と担当の上司のみに送信されます。',
+    sumType: '種類', sumStart: '初日', sumDuration: '期間', sumNote: 'メモ',
+    sumCert: '診断書', sumManager: '上司',
+    certUploaded: 'アップロード済み', certLater: '後日提出', certNone: '不要', none: '—',
+    doneTitle: '病気欠勤を届け出ました',
+    doneUploaded: '届出と診断書を人事および${name}に送信しました。',
+    doneLater: '届出を送信しました。${date}までに診断書をご提出ください。',
+    doneNone: '届出を人事および${name}に送信しました。',
+    historyTitle: '最近の届出',
+    hDays: '${n}日間', hFrom: '${date}から',
+    stOpen: '診断書待ち', stApproved: '承認済み', stClosed: '完了',
+    back: '戻る', next: '次へ', submit: '送信', newReport: '新しい届出',
+    durHalf: '半日', durDays: '${n}日', durWeek: '1週間', durMore: 'それ以上／未定',
+    uploadErr: '診断書をアップロードするか「後で提出」を選択してください。',
+    today: '今日', yesterday: '昨日'
+  },
+  'en-GB': {
+    appTitle: 'Report Sick Leave',
+    appSub: 'Notify your manager and submit your medical certificate',
+    step1: 'Absence', step2: 'Certificate', step3: 'Review', step4: 'Done',
+    s1Title: 'Your absence',
+    s1Sub: 'Tell us when your illness started and how long you expect to be absent.',
+    typeLabel: 'Type of absence',
+    typeIllness: 'Illness', typeAccident: 'Accident',
+    firstDay: 'First day of absence',
+    expDuration: 'Expected duration',
+    noteLabel: 'Note for your manager (optional)',
+    notePh: 'e.g. reachable by email in the afternoon',
+    mgrHint: 'Automatically notified: ${name}',
+    s2Title: 'Medical certificate',
+    s2Sub: "Upload a photo or PDF of your doctor's certificate.",
+    ruleTitle: 'A certificate is required from day 3 of illness',
+    deadlineTxt: 'To be submitted by ${date} at the latest.',
+    deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
+    dropTitle: 'Tap to upload or drag a file here',
+    dropSub: 'PDF, JPG or PNG · max. 10 MB',
+    laterLabel: "I don't have the certificate yet — submit it later",
+    s3Title: 'Review & submit',
+    s3Sub: 'Please check your details before submitting.',
+    privacy: 'Your health data is treated confidentially and shared only with HR and your responsible manager.',
+    sumType: 'Type', sumStart: 'First day', sumDuration: 'Duration', sumNote: 'Note',
+    sumCert: 'Certificate', sumManager: 'Manager',
+    certUploaded: 'Uploaded', certLater: 'To be submitted', certNone: 'Not required', none: '—',
+    doneTitle: 'Sick leave reported',
+    doneUploaded: 'Your report and certificate have been sent to HR and ${name}.',
+    doneLater: 'Your report has been sent. Please submit the certificate by ${date}.',
+    doneNone: 'Your report has been sent to HR and ${name}.',
+    historyTitle: 'Your recent reports',
+    hDays: '${n} day(s)', hFrom: 'from ${date}',
+    stOpen: 'Certificate pending', stApproved: 'Approved', stClosed: 'Closed',
+    back: 'Back', next: 'Continue', submit: 'Submit', newReport: 'New report',
+    durHalf: 'Half day', durDays: '${n} days', durWeek: '1 week', durMore: 'Longer / unclear',
+    uploadErr: 'Please upload a certificate or choose "submit it later".',
+    today: 'Today', yesterday: 'Yesterday'
+  },
+  'en-US': {
+    appTitle: 'Report Sick Leave',
+    appSub: 'Notify your manager and submit your medical certificate',
+    step1: 'Absence', step2: 'Certificate', step3: 'Review', step4: 'Done',
+    s1Title: 'Your absence',
+    s1Sub: 'Tell us when your illness started and how long you expect to be absent.',
+    typeLabel: 'Type of absence',
+    typeIllness: 'Illness', typeAccident: 'Accident',
+    firstDay: 'First day of absence',
+    expDuration: 'Expected duration',
+    noteLabel: 'Note for your manager (optional)',
+    notePh: 'e.g. reachable by email in the afternoon',
+    mgrHint: 'Automatically notified: ${name}',
+    s2Title: 'Medical certificate',
+    s2Sub: "Upload a photo or PDF of your doctor's certificate.",
+    ruleTitle: 'A certificate is required from day 3 of illness',
+    deadlineTxt: 'To be submitted by ${date} at the latest.',
+    deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
+    dropTitle: 'Tap to upload or drag a file here',
+    dropSub: 'PDF, JPG or PNG · max. 10 MB',
+    laterLabel: "I don't have the certificate yet — submit it later",
+    s3Title: 'Review & submit',
+    s3Sub: 'Please check your details before submitting.',
+    privacy: 'Your health data is treated confidentially and shared only with HR and your responsible manager.',
+    sumType: 'Type', sumStart: 'First day', sumDuration: 'Duration', sumNote: 'Note',
+    sumCert: 'Certificate', sumManager: 'Manager',
+    certUploaded: 'Uploaded', certLater: 'To be submitted', certNone: 'Not required', none: '—',
+    doneTitle: 'Sick leave reported',
+    doneUploaded: 'Your report and certificate have been sent to HR and ${name}.',
+    doneLater: 'Your report has been sent. Please submit the certificate by ${date}.',
+    doneNone: 'Your report has been sent to HR and ${name}.',
+    historyTitle: 'Your recent reports',
+    hDays: '${n} day(s)', hFrom: 'from ${date}',
+    stOpen: 'Certificate pending', stApproved: 'Approved', stClosed: 'Closed',
+    back: 'Back', next: 'Continue', submit: 'Submit', newReport: 'New report',
+    durHalf: 'Half day', durDays: '${n} days', durWeek: '1 week', durMore: 'Longer / unclear',
+    uploadErr: 'Please upload a certificate or choose "submit it later".',
+    today: 'Today', yesterday: 'Yesterday'
+  }
+};
+const t = T[LANG];
+
+function tr(key, vars = {}) {
+  let s = t[key] || key;
+  for (const [k, v] of Object.entries(vars)) s = s.replace('${' + k + '}', v);
+  return s;
+}
+
+// — Date helpers —
+const now = new Date();
+const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return d; };
+const daysFromNow = n => { const d = new Date(now); d.setDate(d.getDate() + n); return d; };
+const fmtDate = (d, opt) => new Intl.DateTimeFormat(LOCALE, opt || { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+const fmtShort = d => new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+const toInputVal = d => { const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return z.toISOString().slice(0, 10); };
+
+// — State —
+const state = {
+  step: 1,
+  type: 'illness',
+  start: new Date(now),
+  durationKey: 'd3',
+  note: '',
+  certFile: null,
+  later: false
+};
+
+// Duration options: value in days used to compute the certificate deadline
+const DURATIONS = [
+  { key: 'half', days: 0.5, label: () => t.durHalf },
+  { key: 'd2',   days: 2,   label: () => tr('durDays', { n: 2 }) },
+  { key: 'd3',   days: 3,   label: () => tr('durDays', { n: 3 }) },
+  { key: 'd5',   days: 5,   label: () => tr('durDays', { n: 5 }) },
+  { key: 'week', days: 7,   label: () => t.durWeek },
+  { key: 'more', days: 10,  label: () => t.durMore }
+];
+const durByKey = k => DURATIONS.find(d => d.key === k) || DURATIONS[2];
+
+// Certificate becomes mandatory from the 3rd day of illness
+function certRequired() { return durByKey(state.durationKey).days >= 3; }
+function certDeadline() {
+  // Deadline = first day + 3 calendar days
+  const d = new Date(state.start); d.setDate(d.getDate() + 3); return d;
+}
+
+// — i18n static —
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (t[k]) el.textContent = t[k]; });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.dataset.i18nPlaceholder; if (t[k]) el.placeholder = t[k]; });
+}
+
+// — Branding —
+function applySBBrand() {
+  try {
+    let b = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (!b && window.parent && window.parent !== window) {
+      b = getComputedStyle(window.parent.document.documentElement).getPropertyValue('--sb-brand').trim();
+    }
+    if (b) document.documentElement.style.setProperty('--primary', b);
+  } catch (e) { /* cross-origin — CSS fallback applies */ }
+}
+
+// — Rendering helpers —
+const $ = sel => document.querySelector(sel);
+
+function buildDurationSelect() {
+  const sel = $('#cwDuration');
+  sel.innerHTML = DURATIONS.map(d => `<option value="${d.key}">${d.label()}</option>`).join('');
+  sel.value = state.durationKey;
+}
+
+function iconCheck() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
+
+function renderStepper() {
+  document.querySelectorAll('.cw-step').forEach(el => {
+    const n = +el.dataset.step;
+    el.classList.toggle('active', n === state.step);
+    el.classList.toggle('done', n < state.step);
+    const dot = el.querySelector('.cw-step-dot');
+    dot.innerHTML = n < state.step ? iconCheck() : String(n);
+  });
+}
+
+function renderPanels() {
+  document.querySelectorAll('.cw-panel').forEach(p => p.classList.toggle('active', +p.dataset.panel === state.step));
+}
+
+function renderStep2() {
+  const dl = $('#cwDeadline');
+  if (certRequired()) {
+    dl.textContent = tr('deadlineTxt', { date: fmtDate(certDeadline()) });
+  } else {
+    dl.textContent = t.deadlineOk;
+  }
+}
+
+function renderFile() {
+  const wrap = $('#cwFileWrap');
+  if (!state.certFile) { wrap.innerHTML = ''; return; }
+  const f = state.certFile;
+  const kb = f.size > 1024 * 1024 ? (f.size / 1024 / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(f.size / 1024)) + ' KB';
+  wrap.innerHTML = `
+    <div class="cw-file">
+      <div class="cw-file-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>
+      <div class="cw-file-meta">
+        <div class="cw-file-name">${f.name}</div>
+        <div class="cw-file-size">${kb}</div>
+      </div>
+      <button class="cw-file-x" id="cwRemoveFile" aria-label="remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>`;
+  $('#cwRemoveFile').onclick = () => { state.certFile = null; renderFile(); };
+}
+
+function renderSummary() {
+  const rows = [];
+  const typeLabel = state.type === 'illness' ? t.typeIllness : t.typeAccident;
+  rows.push([t.sumType, typeLabel]);
+  rows.push([t.sumStart, fmtDate(state.start)]);
+  rows.push([t.sumDuration, durByKey(state.durationKey).label()]);
+  rows.push([t.sumManager, MANAGER]);
+  rows.push([t.sumNote, state.note.trim() || t.none]);
+
+  let certVal;
+  if (state.certFile) certVal = `<span class="cw-badge ok">${iconCheck()}${t.certUploaded}</span>`;
+  else if (!certRequired() && !state.later) certVal = `<span class="cw-badge neutral">${t.certNone}</span>`;
+  else certVal = `<span class="cw-badge pend">${t.certLater}</span>`;
+  rows.push([t.sumCert, certVal]);
+
+  $('#cwSummary').innerHTML = rows.map(([k, v]) =>
+    `<div class="cw-sum-row"><span class="cw-sum-k">${k}</span><span class="cw-sum-v">${v}</span></div>`
+  ).join('');
+  $('#cwPrivacy').textContent = t.privacy;
+}
+
+function genRef() {
+  const y = now.getFullYear();
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return `SL-${y}-${n}`;
+}
+
+function renderDone() {
+  let txt;
+  if (state.certFile) txt = tr('doneUploaded', { name: MANAGER });
+  else if (certRequired() || state.later) txt = tr('doneLater', { date: fmtDate(certDeadline()) });
+  else txt = tr('doneNone', { name: MANAGER });
+  $('#cwDoneText').textContent = txt;
+  $('#cwRef').textContent = genRef();
+  renderHistory();
+}
+
+function renderHistory() {
+  // The just-submitted report plus two historical ones, anchored to runtime dates
+  const items = [];
+  // current
+  items.push({
+    start: state.start,
+    days: durByKey(state.durationKey).days,
+    status: (state.certRequiredAtSubmit && !state.certFileAtSubmit) ? 'open' : 'approved'
+  });
+  items.push({ start: daysAgo(24), days: 2, status: 'closed' });
+  items.push({ start: daysAgo(58), days: 4, status: 'closed' });
+
+  const statusMap = {
+    open:     { color: 'var(--warning)', label: t.stOpen },
+    approved: { color: 'var(--success)', label: t.stApproved },
+    closed:   { color: 'var(--text-light)', label: t.stClosed }
+  };
+
+  $('#cwHistory').innerHTML = items.map(it => {
+    const s = statusMap[it.status];
+    const dayLabel = it.days < 1 ? t.durHalf : tr('hDays', { n: it.days });
+    const badgeClass = it.status === 'open' ? 'pend' : (it.status === 'approved' ? 'ok' : 'neutral');
+    return `
+      <div class="cw-hist-item">
+        <span class="cw-hist-dot" style="background:${s.color}"></span>
+        <div class="cw-hist-meta">
+          <div class="cw-hist-title">${tr('hFrom', { date: fmtShort(it.start) })}</div>
+          <div class="cw-hist-sub">${dayLabel}</div>
+        </div>
+        <span class="cw-badge ${badgeClass}">${s.label}</span>
+      </div>`;
+  }).join('');
+}
+
+// — Footer / navigation —
+function renderFooter() {
+  const back = $('#cwBack');
+  const next = $('#cwNext');
+  const nextLabel = next.querySelector('[data-i18n="next"]');
+  const nextIcon = next.querySelector('svg');
+
+  back.style.visibility = (state.step === 1 || state.step === 4) ? 'hidden' : 'visible';
+
+  if (state.step === 3) {
+    nextLabel.textContent = t.submit;
+    nextIcon.style.display = 'none';
+  } else if (state.step === 4) {
+    nextLabel.textContent = t.newReport;
+    nextIcon.style.display = 'none';
+    back.style.visibility = 'hidden';
+  } else {
+    nextLabel.textContent = t.next;
+    nextIcon.style.display = '';
+  }
+}
+
+function render() {
+  renderStepper();
+  renderPanels();
+  if (state.step === 2) renderStep2();
+  if (state.step === 3) renderSummary();
+  if (state.step === 4) renderDone();
+  renderFooter();
+}
+
+function goNext() {
+  if (state.step === 2) {
+    // Require a certificate when mandatory, unless "submit later" is chosen
+    if (certRequired() && !state.certFile && !state.later) {
+      const drop = $('#cwDrop');
+      drop.style.borderColor = 'var(--danger)';
+      $('#cwFileWrap').insertAdjacentHTML('afterend', `<div class="cw-hint" id="cwErr" style="color:var(--danger);margin-top:8px;">${t.uploadErr}</div>`);
+      setTimeout(() => { const e = $('#cwErr'); if (e) e.remove(); drop.style.borderColor = ''; }, 3500);
+      return;
+    }
+  }
+  if (state.step === 3) {
+    // snapshot for history status
+    state.certRequiredAtSubmit = certRequired();
+    state.certFileAtSubmit = !!state.certFile;
+  }
+  if (state.step === 4) { resetFlow(); return; }
+  state.step = Math.min(4, state.step + 1);
+  render();
+}
+
+function goBack() {
+  state.step = Math.max(1, state.step - 1);
+  render();
+}
+
+function resetFlow() {
+  state.step = 1;
+  state.type = 'illness';
+  state.start = new Date(now);
+  state.durationKey = 'd3';
+  state.note = '';
+  state.certFile = null;
+  state.later = false;
+  $('#cwStart').value = toInputVal(state.start);
+  $('#cwDuration').value = state.durationKey;
+  $('#cwNote').value = '';
+  $('#cwLater').checked = false;
+  renderFile();
+  document.querySelectorAll('#cwType .cw-choice-opt').forEach(o => o.classList.toggle('sel', o.dataset.val === 'illness'));
+  render();
+}
+
+// — Init —
+function init() {
+  applySBBrand();
+  applyTranslations();
+
+  $('#cwStart').value = toInputVal(state.start);
+  $('#cwStart').max = toInputVal(new Date(now));
+  buildDurationSelect();
+  $('#cwMgrHint').textContent = tr('mgrHint', { name: MANAGER });
+
+  // Type choice
+  document.querySelectorAll('#cwType .cw-choice-opt').forEach(opt => {
+    opt.onclick = () => {
+      document.querySelectorAll('#cwType .cw-choice-opt').forEach(o => o.classList.remove('sel'));
+      opt.classList.add('sel');
+      state.type = opt.dataset.val;
+    };
+  });
+
+  $('#cwStart').onchange = e => { state.start = new Date(e.target.value + 'T00:00:00'); };
+  $('#cwDuration').onchange = e => { state.durationKey = e.target.value; };
+  $('#cwNote').oninput = e => { state.note = e.target.value; };
+
+  // Upload
+  const drop = $('#cwDrop');
+  const input = $('#cwFileInput');
+  drop.onclick = () => input.click();
+  input.onchange = e => { if (e.target.files[0]) { state.certFile = e.target.files[0]; state.later = false; $('#cwLater').checked = false; renderFile(); } };
+  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) { state.certFile = f; state.later = false; $('#cwLater').checked = false; renderFile(); } });
+  $('#cwLater').onchange = e => { state.later = e.target.checked; if (e.target.checked) { state.certFile = null; renderFile(); } };
+
+  $('#cwNext').onclick = goNext;
+  $('#cwBack').onclick = goBack;
+
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+</body>
+</html>
