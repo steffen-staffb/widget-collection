@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Staffbase brand color via ?brand= URL param (sb-brand-url-param) -->
+    <script>(function(){try{var b=new URLSearchParams(location.search).get('brand');if(b&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(b)){document.documentElement.style.setProperty('--sb-brand',b);}}catch(e){}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="widget-name" content="Reference Letter Request">
+    <meta name="widget-description" content="Request an employment reference (Arbeitszeugnis) through a guided, multi-step self-service flow that explains the process and collects the required details.">
+    <meta name="widget-tags" content="HR Data, Forms">
+    <title>Reference Letter Request</title>
+    <style>
+        :root {
+            --primary: var(--sb-brand, #2563eb);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #ffffff;
+            --bg-gray: #f9fafb;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gray);
+            color: var(--text);
+            line-height: 1.45;
+            padding: 12px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cw-wrap { max-width: 640px; margin: 0 auto; }
+
+        .cw-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .cw-header {
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cw-header-icon {
+            width: 36px; height: 36px; flex: 0 0 36px;
+            border-radius: 10px;
+            background: color-mix(in srgb, var(--primary) 14%, transparent);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-header-icon svg { width: 20px; height: 20px; }
+        .cw-header h1 { font-size: 16px; font-weight: 700; }
+        .cw-header p { font-size: 12px; color: var(--text-light); margin-top: 1px; }
+
+        /* Stepper */
+        .cw-stepper {
+            display: flex;
+            padding: 12px 20px 2px;
+            gap: 6px;
+        }
+        .cw-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            text-align: center;
+        }
+        .cw-step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 11px;
+            left: calc(50% + 16px);
+            right: calc(-50% + 16px);
+            height: 2px;
+            background: var(--border);
+        }
+        .cw-step.done:not(:last-child)::after { background: var(--primary); }
+        .cw-step-dot {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+            z-index: 1;
+            transition: all .2s;
+        }
+        .cw-step.active .cw-step-dot { border-color: var(--primary); color: var(--primary); }
+        .cw-step.done .cw-step-dot { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .cw-step-label { font-size: 11px; color: var(--text-light); font-weight: 600; max-width: 90px; }
+        .cw-step.active .cw-step-label, .cw-step.done .cw-step-label { color: var(--text); }
+        .cw-step-dot svg { width: 15px; height: 15px; }
+
+        .cw-body { padding: 14px 20px 16px; }
+        .cw-panel { display: none; }
+        .cw-panel.active { display: block; animation: fade .25s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+
+        .cw-section-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+        .cw-section-sub { font-size: 13px; color: var(--text-light); margin-bottom: 14px; }
+
+        .cw-field { margin-bottom: 12px; }
+        .cw-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .cw-input, .cw-select, .cw-textarea {
+            width: 100%;
+            padding: 8px 11px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .cw-input:focus, .cw-select:focus, .cw-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+        }
+        .cw-textarea { resize: vertical; min-height: 50px; }
+        .cw-row { display: flex; gap: 12px; }
+        .cw-row > * { flex: 1; }
+        .cw-hint { font-size: 12px; color: var(--text-light); margin-top: 5px; }
+
+        /* Type cards (vertical, with description) */
+        .cw-types { display: flex; flex-direction: column; gap: 8px; }
+        .cw-type-opt {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 11px 13px;
+            cursor: pointer;
+            display: flex; align-items: flex-start; gap: 11px;
+            transition: all .15s;
+        }
+        .cw-type-opt:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); }
+        .cw-type-opt.sel { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 7%, transparent); }
+        .cw-type-ic {
+            width: 34px; height: 34px; flex: 0 0 34px;
+            border-radius: 9px;
+            background: var(--bg-gray);
+            color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-type-opt.sel .cw-type-ic { background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); }
+        .cw-type-ic svg { width: 19px; height: 19px; }
+        .cw-type-meta { flex: 1; min-width: 0; }
+        .cw-type-name { font-size: 14px; font-weight: 600; }
+        .cw-type-desc { font-size: 12px; color: var(--text-light); margin-top: 1px; }
+        .cw-type-check { flex: 0 0 18px; color: var(--primary); opacity: 0; margin-top: 8px; }
+        .cw-type-opt.sel .cw-type-check { opacity: 1; }
+        .cw-type-check svg { width: 18px; height: 18px; }
+
+        /* Chips (multi-select) */
+        .cw-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cw-chip {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 13px;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all .15s;
+            user-select: none;
+        }
+        .cw-chip:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); }
+        .cw-chip.sel { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
+
+        /* Info banner */
+        .cw-banner {
+            display: flex; gap: 12px;
+            padding: 11px 13px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .cw-banner svg { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 1px; }
+        .cw-banner.info { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--text); }
+        .cw-banner.info svg { color: var(--primary); }
+        .cw-banner strong { display: block; margin-bottom: 2px; }
+
+        /* Summary */
+        .cw-summary { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .cw-sum-row {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 9px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cw-sum-row:last-child { border-bottom: none; }
+        .cw-sum-k { color: var(--text-light); flex: 0 0 auto; }
+        .cw-sum-v { font-weight: 600; text-align: right; }
+
+        /* Badges */
+        .cw-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 9px; border-radius: 999px;
+            white-space: nowrap;
+        }
+        .cw-badge.ok { background: color-mix(in srgb, var(--success) 16%, transparent); color: var(--success); }
+        .cw-badge.pend { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+        .cw-badge.neutral { background: var(--bg-gray); color: var(--text-light); }
+        .cw-badge svg { width: 12px; height: 12px; }
+
+        /* Buttons / footer */
+        .cw-footer {
+            display: flex; justify-content: space-between; gap: 12px;
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .cw-btn {
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: inherit;
+        }
+        .cw-btn svg { width: 16px; height: 16px; }
+        .cw-btn-primary { background: var(--primary); color: #fff; }
+        .cw-btn-primary:hover { filter: brightness(1.06); }
+        .cw-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+        .cw-btn-ghost { background: var(--bg); border-color: var(--border); color: var(--text); }
+        .cw-btn-ghost:hover { background: var(--bg-gray); }
+
+        /* Success */
+        .cw-success { text-align: center; padding: 4px 0 2px; }
+        .cw-success-ic {
+            width: 52px; height: 52px; margin: 0 auto 12px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--success) 16%, transparent);
+            color: var(--success);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-success-ic svg { width: 28px; height: 28px; }
+        .cw-success h2 { font-size: 18px; margin-bottom: 5px; }
+        .cw-success p { font-size: 13px; color: var(--text-light); max-width: 440px; margin: 0 auto 6px; }
+        .cw-ref {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 13px; font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--bg-gray);
+            border: 1px solid var(--border);
+            letter-spacing: .5px;
+        }
+
+        /* History */
+        .cw-history { margin-top: 16px; }
+        .cw-history-h { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+        .cw-hist-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 7px;
+        }
+        .cw-hist-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px; }
+        .cw-hist-meta { flex: 1; min-width: 0; }
+        .cw-hist-title { font-size: 13px; font-weight: 600; }
+        .cw-hist-sub { font-size: 12px; color: var(--text-light); }
+    </style>
+</head>
+<body>
+<div class="cw-wrap">
+    <div class="cw-card">
+        <div class="cw-header">
+            <div class="cw-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+            </div>
+            <div>
+                <h1 data-i18n="appTitle">Request a Reference Letter</h1>
+                <p data-i18n="appSub">Request your employment reference and track its status</p>
+            </div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="cw-stepper" id="cwStepper">
+            <div class="cw-step" data-step="1">
+                <div class="cw-step-dot">1</div>
+                <div class="cw-step-label" data-i18n="step1">Type</div>
+            </div>
+            <div class="cw-step" data-step="2">
+                <div class="cw-step-dot">2</div>
+                <div class="cw-step-label" data-i18n="step2">Details</div>
+            </div>
+            <div class="cw-step" data-step="3">
+                <div class="cw-step-dot">3</div>
+                <div class="cw-step-label" data-i18n="step3">Review</div>
+            </div>
+            <div class="cw-step" data-step="4">
+                <div class="cw-step-dot">4</div>
+                <div class="cw-step-label" data-i18n="step4">Done</div>
+            </div>
+        </div>
+
+        <div class="cw-body">
+            <!-- STEP 1 -->
+            <div class="cw-panel active" data-panel="1">
+                <div class="cw-section-title" data-i18n="s1Title">What do you need?</div>
+                <div class="cw-section-sub" data-i18n="s1Sub">Choose the type of reference. HR will draft it and send it to you for review.</div>
+                <div class="cw-types" id="cwTypes"></div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="cw-panel" data-panel="2">
+                <div class="cw-section-title" data-i18n="s2Title">Your details</div>
+                <div class="cw-section-sub" data-i18n="s2Sub">A few details help HR tailor your reference.</div>
+
+                <div class="cw-field">
+                    <label class="cw-label" for="cwReason" data-i18n="reasonLabel">Reason for the request</label>
+                    <select id="cwReason" class="cw-select"></select>
+                </div>
+
+                <div class="cw-field" id="cwFocusField">
+                    <label class="cw-label" data-i18n="focusLabel">Areas to emphasise (optional)</label>
+                    <div class="cw-chips" id="cwChips"></div>
+                </div>
+
+                <div class="cw-row">
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwNeeded" data-i18n="neededLabel">Needed by</label>
+                        <input type="date" id="cwNeeded" class="cw-input">
+                    </div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwLangSel" data-i18n="langLabel">Language of the letter</label>
+                        <select id="cwLangSel" class="cw-select"></select>
+                    </div>
+                </div>
+
+                <div class="cw-field">
+                    <label class="cw-label" data-i18n="deliveryLabel">Delivery</label>
+                    <div class="cw-chips" id="cwDelivery"></div>
+                </div>
+
+                <div class="cw-field">
+                    <label class="cw-label" for="cwNote" data-i18n="noteLabel">Note for HR (optional)</label>
+                    <textarea id="cwNote" class="cw-textarea" data-i18n-placeholder="notePh" placeholder="e.g. applying for a new role, please highlight project leadership"></textarea>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="cw-panel" data-panel="3">
+                <div class="cw-section-title" data-i18n="s3Title">Review &amp; submit</div>
+                <div class="cw-section-sub" data-i18n="s3Sub">Please check your request before submitting.</div>
+                <div class="cw-summary" id="cwSummary"></div>
+                <div class="cw-banner info" style="margin-top:14px;margin-bottom:0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="10"/></svg>
+                    <div id="cwProcessing"></div>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="cw-panel" data-panel="4">
+                <div class="cw-success">
+                    <div class="cw-success-ic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    </div>
+                    <h2 data-i18n="doneTitle">Request submitted</h2>
+                    <p id="cwDoneText"></p>
+                    <div class="cw-ref" id="cwRef">—</div>
+                </div>
+
+                <div class="cw-history">
+                    <div class="cw-history-h" data-i18n="historyTitle">Your recent requests</div>
+                    <div id="cwHistory"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cw-footer" id="cwFooter">
+            <button class="cw-btn cw-btn-ghost" id="cwBack" data-i18n="back">Back</button>
+            <button class="cw-btn cw-btn-primary" id="cwNext">
+                <span data-i18n="next">Continue</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// — Language detection —
+const LANG = (() => {
+  const l = navigator.language || '';
+  if (l.startsWith('de')) return 'de';
+  if (l.startsWith('fr')) return 'fr';
+  if (l.startsWith('es')) return 'es';
+  if (l.startsWith('ja')) return 'ja';
+  if (l === 'en-GB')      return 'en-GB';
+  return 'en-US';
+})();
+document.documentElement.lang = LANG;
+
+const LOCALE = {
+  'de': 'de-CH', 'fr': 'fr-CH', 'es': 'es-ES',
+  'ja': 'ja-JP', 'en-GB': 'en-GB', 'en-US': 'en-US'
+}[LANG];
+
+const HR_CONTACT = 'Elizabeth Rorke';
+
+// — Translations —
+const T = {
+  de: {
+    appTitle: 'Arbeitszeugnis beantragen',
+    appSub: 'Beantrage dein Arbeitszeugnis und verfolge den Status',
+    step1: 'Art', step2: 'Angaben', step3: 'Prüfen', step4: 'Fertig',
+    s1Title: 'Was benötigst du?',
+    s1Sub: 'Wähle die Art des Zeugnisses. HR erstellt einen Entwurf und schickt ihn dir zur Freigabe.',
+    t_interim_n: 'Zwischenzeugnis',
+    t_interim_d: 'Während des laufenden Arbeitsverhältnisses, z. B. bei Vorgesetztenwechsel.',
+    t_final_n: 'Schlusszeugnis (Vollzeugnis)',
+    t_final_d: 'Bei Austritt – mit vollständiger Tätigkeits- und Leistungsbeurteilung.',
+    t_confirm_n: 'Arbeitsbestätigung',
+    t_confirm_d: 'Einfache Bestätigung von Anstellung und Dauer, ohne Bewertung.',
+    s2Title: 'Deine Angaben',
+    s2Sub: 'Ein paar Angaben helfen HR, dein Zeugnis passend zu formulieren.',
+    reasonLabel: 'Grund des Antrags',
+    r_application: 'Bewerbung', r_internal: 'Interner Wechsel', r_leaving: 'Austritt', r_personal: 'Persönliche Unterlagen',
+    focusLabel: 'Zu betonende Bereiche (optional)',
+    f_leadership: 'Führung', f_projects: 'Projektarbeit', f_customer: 'Kundenkontakt', f_expertise: 'Fachkompetenz', f_teamwork: 'Teamarbeit', f_sales: 'Verkauf',
+    neededLabel: 'Benötigt bis',
+    langLabel: 'Sprache des Zeugnisses',
+    deliveryLabel: 'Zustellung',
+    d_pdf: 'PDF (digital)', d_print: 'Gedruckt (Post)',
+    noteLabel: 'Notiz an HR (optional)',
+    notePh: 'z. B. Bewerbung auf neue Stelle, bitte Projektleitung hervorheben',
+    s3Title: 'Prüfen & absenden',
+    s3Sub: 'Bitte überprüfe deinen Antrag vor dem Absenden.',
+    processing: 'Die übliche Bearbeitungszeit beträgt 10 Arbeitstage. Du erhältst den Entwurf von ${name} aus HR zur Freigabe.',
+    sumType: 'Art', sumReason: 'Grund', sumFocus: 'Schwerpunkte', sumNeeded: 'Benötigt bis',
+    sumLang: 'Sprache', sumDelivery: 'Zustellung', sumNote: 'Notiz', none: '—',
+    doneTitle: 'Antrag übermittelt',
+    doneText: 'Dein Antrag wurde an ${name} aus HR übermittelt. Voraussichtlich fertig bis ${date}.',
+    historyTitle: 'Deine letzten Anträge',
+    stProcessing: 'In Bearbeitung', stReview: 'Entwurf zur Freigabe', stDone: 'Abgeschlossen',
+    back: 'Zurück', next: 'Weiter', submit: 'Antrag absenden', newReq: 'Neuer Antrag',
+    langDe: 'Deutsch', langFr: 'Französisch', langIt: 'Italienisch', langEn: 'Englisch'
+  },
+  fr: {
+    appTitle: 'Demander un certificat de travail',
+    appSub: 'Demandez votre certificat de travail et suivez son statut',
+    step1: 'Type', step2: 'Détails', step3: 'Vérifier', step4: 'Terminé',
+    s1Title: 'De quoi avez-vous besoin ?',
+    s1Sub: 'Choisissez le type de certificat. Les RH en rédigent un projet et vous l\'envoient pour validation.',
+    t_interim_n: 'Certificat intermédiaire',
+    t_interim_d: 'Pendant la relation de travail, p. ex. en cas de changement de responsable.',
+    t_final_n: 'Certificat final (complet)',
+    t_final_d: 'Au départ – avec évaluation complète des activités et des performances.',
+    t_confirm_n: 'Attestation de travail',
+    t_confirm_d: 'Simple confirmation de l\'emploi et de sa durée, sans évaluation.',
+    s2Title: 'Vos informations',
+    s2Sub: 'Quelques informations aident les RH à adapter votre certificat.',
+    reasonLabel: 'Motif de la demande',
+    r_application: 'Candidature', r_internal: 'Mobilité interne', r_leaving: 'Départ', r_personal: 'Dossier personnel',
+    focusLabel: 'Domaines à mettre en avant (facultatif)',
+    f_leadership: 'Encadrement', f_projects: 'Gestion de projet', f_customer: 'Relation client', f_expertise: 'Expertise', f_teamwork: 'Travail d\'équipe', f_sales: 'Vente',
+    neededLabel: 'Requis pour le',
+    langLabel: 'Langue du certificat',
+    deliveryLabel: 'Remise',
+    d_pdf: 'PDF (numérique)', d_print: 'Imprimé (courrier)',
+    noteLabel: 'Note pour les RH (facultatif)',
+    notePh: 'p. ex. candidature à un nouveau poste, merci de souligner la gestion de projet',
+    s3Title: 'Vérifier et envoyer',
+    s3Sub: 'Veuillez vérifier votre demande avant l\'envoi.',
+    processing: 'Le délai de traitement habituel est de 10 jours ouvrés. Vous recevrez le projet de ${name} des RH pour validation.',
+    sumType: 'Type', sumReason: 'Motif', sumFocus: 'Points forts', sumNeeded: 'Requis pour le',
+    sumLang: 'Langue', sumDelivery: 'Remise', sumNote: 'Note', none: '—',
+    doneTitle: 'Demande envoyée',
+    doneText: 'Votre demande a été transmise à ${name} des RH. Prête vers le ${date}.',
+    historyTitle: 'Vos demandes récentes',
+    stProcessing: 'En cours', stReview: 'Projet à valider', stDone: 'Terminé',
+    back: 'Retour', next: 'Continuer', submit: 'Envoyer la demande', newReq: 'Nouvelle demande',
+    langDe: 'Allemand', langFr: 'Français', langIt: 'Italien', langEn: 'Anglais'
+  },
+  es: {
+    appTitle: 'Solicitar certificado laboral',
+    appSub: 'Solicita tu certificado laboral y sigue su estado',
+    step1: 'Tipo', step2: 'Datos', step3: 'Revisar', step4: 'Hecho',
+    s1Title: '¿Qué necesitas?',
+    s1Sub: 'Elige el tipo de certificado. RR. HH. redactará un borrador y te lo enviará para su revisión.',
+    t_interim_n: 'Certificado intermedio',
+    t_interim_d: 'Durante la relación laboral, p. ej. al cambiar de responsable.',
+    t_final_n: 'Certificado final (completo)',
+    t_final_d: 'A la salida, con evaluación completa de funciones y desempeño.',
+    t_confirm_n: 'Constancia laboral',
+    t_confirm_d: 'Confirmación simple del empleo y su duración, sin evaluación.',
+    s2Title: 'Tus datos',
+    s2Sub: 'Algunos datos ayudan a RR. HH. a adaptar tu certificado.',
+    reasonLabel: 'Motivo de la solicitud',
+    r_application: 'Candidatura', r_internal: 'Cambio interno', r_leaving: 'Salida', r_personal: 'Archivo personal',
+    focusLabel: 'Áreas a destacar (opcional)',
+    f_leadership: 'Liderazgo', f_projects: 'Gestión de proyectos', f_customer: 'Atención al cliente', f_expertise: 'Competencia técnica', f_teamwork: 'Trabajo en equipo', f_sales: 'Ventas',
+    neededLabel: 'Necesario para',
+    langLabel: 'Idioma del certificado',
+    deliveryLabel: 'Entrega',
+    d_pdf: 'PDF (digital)', d_print: 'Impreso (correo)',
+    noteLabel: 'Nota para RR. HH. (opcional)',
+    notePh: 'p. ej. candidatura a un nuevo puesto, destacar la gestión de proyectos',
+    s3Title: 'Revisar y enviar',
+    s3Sub: 'Comprueba tu solicitud antes de enviarla.',
+    processing: 'El plazo de tramitación habitual es de 10 días laborables. Recibirás el borrador de ${name} de RR. HH. para su revisión.',
+    sumType: 'Tipo', sumReason: 'Motivo', sumFocus: 'Puntos clave', sumNeeded: 'Necesario para',
+    sumLang: 'Idioma', sumDelivery: 'Entrega', sumNote: 'Nota', none: '—',
+    doneTitle: 'Solicitud enviada',
+    doneText: 'Tu solicitud se envió a ${name} de RR. HH. Lista hacia el ${date}.',
+    historyTitle: 'Tus solicitudes recientes',
+    stProcessing: 'En curso', stReview: 'Borrador para revisar', stDone: 'Completado',
+    back: 'Atrás', next: 'Continuar', submit: 'Enviar solicitud', newReq: 'Nueva solicitud',
+    langDe: 'Alemán', langFr: 'Francés', langIt: 'Italiano', langEn: 'Inglés'
+  },
+  ja: {
+    appTitle: '在職証明書の申請',
+    appSub: '勤務証明書を申請し、ステータスを確認',
+    step1: '種類', step2: '詳細', step3: '確認', step4: '完了',
+    s1Title: '必要な書類は？',
+    s1Sub: '証明書の種類を選択してください。人事が草案を作成し、確認用にお送りします。',
+    t_interim_n: '中間証明書',
+    t_interim_d: '在職中に発行、例：上司の交代時など。',
+    t_final_n: '最終証明書（完全版）',
+    t_final_d: '退職時に発行 — 業務内容と評価を含む完全版。',
+    t_confirm_n: '在職確認書',
+    t_confirm_d: '雇用と期間のみを確認する簡易版（評価なし）。',
+    s2Title: '詳細情報',
+    s2Sub: 'いくつかの情報で人事が内容を最適化できます。',
+    reasonLabel: '申請理由',
+    r_application: '応募', r_internal: '社内異動', r_leaving: '退職', r_personal: '個人記録',
+    focusLabel: '強調したい分野（任意）',
+    f_leadership: 'マネジメント', f_projects: 'プロジェクト', f_customer: '顧客対応', f_expertise: '専門知識', f_teamwork: 'チームワーク', f_sales: '営業',
+    neededLabel: '必要期限',
+    langLabel: '証明書の言語',
+    deliveryLabel: '受取方法',
+    d_pdf: 'PDF（デジタル）', d_print: '印刷（郵送）',
+    noteLabel: '人事へのメモ（任意）',
+    notePh: '例：新しい職への応募、プロジェクト管理を強調希望',
+    s3Title: '確認して送信',
+    s3Sub: '送信前に申請内容をご確認ください。',
+    processing: '通常の処理期間は10営業日です。人事の${name}から確認用の草案が届きます。',
+    sumType: '種類', sumReason: '理由', sumFocus: '重点分野', sumNeeded: '必要期限',
+    sumLang: '言語', sumDelivery: '受取方法', sumNote: 'メモ', none: '—',
+    doneTitle: '申請を送信しました',
+    doneText: '申請は人事の${name}に送信されました。完成予定：${date}。',
+    historyTitle: '最近の申請',
+    stProcessing: '処理中', stReview: '草案確認待ち', stDone: '完了',
+    back: '戻る', next: '次へ', submit: '申請を送信', newReq: '新しい申請',
+    langDe: 'ドイツ語', langFr: 'フランス語', langIt: 'イタリア語', langEn: '英語'
+  },
+  'en-GB': {
+    appTitle: 'Request a Reference Letter',
+    appSub: 'Request your employment reference and track its status',
+    step1: 'Type', step2: 'Details', step3: 'Review', step4: 'Done',
+    s1Title: 'What do you need?',
+    s1Sub: 'Choose the type of reference. HR will draft it and send it to you for review.',
+    t_interim_n: 'Interim reference',
+    t_interim_d: 'During ongoing employment, e.g. when your manager changes.',
+    t_final_n: 'Final reference (full)',
+    t_final_d: 'On leaving — with a full assessment of duties and performance.',
+    t_confirm_n: 'Employment confirmation',
+    t_confirm_d: 'A simple confirmation of employment and duration, no assessment.',
+    s2Title: 'Your details',
+    s2Sub: 'A few details help HR tailor your reference.',
+    reasonLabel: 'Reason for the request',
+    r_application: 'Job application', r_internal: 'Internal move', r_leaving: 'Leaving', r_personal: 'Personal records',
+    focusLabel: 'Areas to emphasise (optional)',
+    f_leadership: 'Leadership', f_projects: 'Project work', f_customer: 'Customer contact', f_expertise: 'Expertise', f_teamwork: 'Teamwork', f_sales: 'Sales',
+    neededLabel: 'Needed by',
+    langLabel: 'Language of the letter',
+    deliveryLabel: 'Delivery',
+    d_pdf: 'PDF (digital)', d_print: 'Printed (post)',
+    noteLabel: 'Note for HR (optional)',
+    notePh: 'e.g. applying for a new role, please highlight project leadership',
+    s3Title: 'Review & submit',
+    s3Sub: 'Please check your request before submitting.',
+    processing: 'The usual processing time is 10 working days. You will receive the draft from ${name} in HR for review.',
+    sumType: 'Type', sumReason: 'Reason', sumFocus: 'Emphasis', sumNeeded: 'Needed by',
+    sumLang: 'Language', sumDelivery: 'Delivery', sumNote: 'Note', none: '—',
+    doneTitle: 'Request submitted',
+    doneText: 'Your request has been sent to ${name} in HR. Expected ready by ${date}.',
+    historyTitle: 'Your recent requests',
+    stProcessing: 'In progress', stReview: 'Draft for review', stDone: 'Completed',
+    back: 'Back', next: 'Continue', submit: 'Submit request', newReq: 'New request',
+    langDe: 'German', langFr: 'French', langIt: 'Italian', langEn: 'English'
+  },
+  'en-US': {
+    appTitle: 'Request a Reference Letter',
+    appSub: 'Request your employment reference and track its status',
+    step1: 'Type', step2: 'Details', step3: 'Review', step4: 'Done',
+    s1Title: 'What do you need?',
+    s1Sub: 'Choose the type of reference. HR will draft it and send it to you for review.',
+    t_interim_n: 'Interim reference',
+    t_interim_d: 'During ongoing employment, e.g. when your manager changes.',
+    t_final_n: 'Final reference (full)',
+    t_final_d: 'On leaving — with a full assessment of duties and performance.',
+    t_confirm_n: 'Employment confirmation',
+    t_confirm_d: 'A simple confirmation of employment and duration, no assessment.',
+    s2Title: 'Your details',
+    s2Sub: 'A few details help HR tailor your reference.',
+    reasonLabel: 'Reason for the request',
+    r_application: 'Job application', r_internal: 'Internal move', r_leaving: 'Leaving', r_personal: 'Personal records',
+    focusLabel: 'Areas to emphasize (optional)',
+    f_leadership: 'Leadership', f_projects: 'Project work', f_customer: 'Customer contact', f_expertise: 'Expertise', f_teamwork: 'Teamwork', f_sales: 'Sales',
+    neededLabel: 'Needed by',
+    langLabel: 'Language of the letter',
+    deliveryLabel: 'Delivery',
+    d_pdf: 'PDF (digital)', d_print: 'Printed (mail)',
+    noteLabel: 'Note for HR (optional)',
+    notePh: 'e.g. applying for a new role, please highlight project leadership',
+    s3Title: 'Review & submit',
+    s3Sub: 'Please check your request before submitting.',
+    processing: 'The usual processing time is 10 business days. You will receive the draft from ${name} in HR for review.',
+    sumType: 'Type', sumReason: 'Reason', sumFocus: 'Emphasis', sumNeeded: 'Needed by',
+    sumLang: 'Language', sumDelivery: 'Delivery', sumNote: 'Note', none: '—',
+    doneTitle: 'Request submitted',
+    doneText: 'Your request has been sent to ${name} in HR. Expected ready by ${date}.',
+    historyTitle: 'Your recent requests',
+    stProcessing: 'In progress', stReview: 'Draft for review', stDone: 'Completed',
+    back: 'Back', next: 'Continue', submit: 'Submit request', newReq: 'New request',
+    langDe: 'German', langFr: 'French', langIt: 'Italian', langEn: 'English'
+  }
+};
+const t = T[LANG];
+
+function tr(key, vars = {}) {
+  let s = t[key] || key;
+  for (const [k, v] of Object.entries(vars)) s = s.replace('${' + k + '}', v);
+  return s;
+}
+
+// — Date helpers —
+const now = new Date();
+const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return d; };
+const addWorkdays = (from, n) => { const d = new Date(from); let added = 0; while (added < n) { d.setDate(d.getDate() + 1); const wd = d.getDay(); if (wd !== 0 && wd !== 6) added++; } return d; };
+const fmtDate = (d, opt) => new Intl.DateTimeFormat(LOCALE, opt || { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+const fmtShort = d => new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+const toInputVal = d => { const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return z.toISOString().slice(0, 10); };
+
+// — Config data —
+const TYPES = [
+  { key: 'interim',  name: 't_interim_n', desc: 't_interim_d', icon: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>' },
+  { key: 'final',    name: 't_final_n',   desc: 't_final_d',   icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>' },
+  { key: 'confirm',  name: 't_confirm_n', desc: 't_confirm_d', icon: '<path d="M20 6 9 17l-5-5"/>' }
+];
+const REASONS = ['application', 'internal', 'leaving', 'personal'];
+const FOCUS = ['leadership', 'projects', 'customer', 'expertise', 'teamwork', 'sales'];
+const DELIVERY = ['pdf', 'print'];
+const LETTER_LANGS = ['De', 'Fr', 'It', 'En'];
+
+// — State —
+const state = {
+  step: 1,
+  type: 'final',
+  reason: 'application',
+  focus: new Set(),
+  needed: addWorkdays(now, 14),
+  letterLang: { de: 'De', fr: 'Fr', es: 'En', ja: 'En', 'en-GB': 'En', 'en-US': 'En' }[LANG],
+  delivery: 'pdf',
+  note: ''
+};
+
+// — i18n static —
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (t[k]) el.textContent = t[k]; });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.dataset.i18nPlaceholder; if (t[k]) el.placeholder = t[k]; });
+}
+
+// — Branding —
+function applySBBrand() {
+  try {
+    let b = getComputedStyle(document.documentElement).getPropertyValue('--sb-brand').trim();
+    if (!b && window.parent && window.parent !== window) {
+      b = getComputedStyle(window.parent.document.documentElement).getPropertyValue('--sb-brand').trim();
+    }
+    if (b) document.documentElement.style.setProperty('--primary', b);
+  } catch (e) { /* cross-origin — CSS fallback applies */ }
+}
+
+const $ = sel => document.querySelector(sel);
+function iconCheck() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
+function langLabel(code) { return t['lang' + code]; }
+
+// — Builders —
+function buildTypes() {
+  $('#cwTypes').innerHTML = TYPES.map(ty => `
+    <div class="cw-type-opt ${ty.key === state.type ? 'sel' : ''}" data-type="${ty.key}">
+      <div class="cw-type-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ty.icon}</svg></div>
+      <div class="cw-type-meta">
+        <div class="cw-type-name">${t[ty.name]}</div>
+        <div class="cw-type-desc">${t[ty.desc]}</div>
+      </div>
+      <div class="cw-type-check">${iconCheck()}</div>
+    </div>`).join('');
+  document.querySelectorAll('#cwTypes .cw-type-opt').forEach(el => {
+    el.onclick = () => {
+      state.type = el.dataset.type;
+      document.querySelectorAll('#cwTypes .cw-type-opt').forEach(o => o.classList.toggle('sel', o === el));
+    };
+  });
+}
+
+function buildReason() {
+  const sel = $('#cwReason');
+  sel.innerHTML = REASONS.map(r => `<option value="${r}">${t['r_' + r]}</option>`).join('');
+  sel.value = state.reason;
+  sel.onchange = e => { state.reason = e.target.value; };
+}
+
+function buildChips() {
+  const wrap = $('#cwChips');
+  wrap.innerHTML = FOCUS.map(f => `<span class="cw-chip ${state.focus.has(f) ? 'sel' : ''}" data-focus="${f}">${t['f_' + f]}</span>`).join('');
+  wrap.querySelectorAll('.cw-chip').forEach(c => {
+    c.onclick = () => {
+      const k = c.dataset.focus;
+      if (state.focus.has(k)) state.focus.delete(k); else state.focus.add(k);
+      c.classList.toggle('sel');
+    };
+  });
+  // Emphasis only applies to assessed references
+  $('#cwFocusField').style.display = state.type === 'confirm' ? 'none' : '';
+}
+
+function buildLangSelect() {
+  const sel = $('#cwLangSel');
+  sel.innerHTML = LETTER_LANGS.map(c => `<option value="${c}">${langLabel(c)}</option>`).join('');
+  sel.value = state.letterLang;
+  sel.onchange = e => { state.letterLang = e.target.value; };
+}
+
+function buildDelivery() {
+  const wrap = $('#cwDelivery');
+  wrap.innerHTML = DELIVERY.map(d => `<span class="cw-chip ${d === state.delivery ? 'sel' : ''}" data-del="${d}">${t['d_' + d]}</span>`).join('');
+  wrap.querySelectorAll('.cw-chip').forEach(c => {
+    c.onclick = () => {
+      state.delivery = c.dataset.del;
+      wrap.querySelectorAll('.cw-chip').forEach(o => o.classList.toggle('sel', o === c));
+    };
+  });
+}
+
+// — Rendering —
+function renderStepper() {
+  document.querySelectorAll('.cw-step').forEach(el => {
+    const n = +el.dataset.step;
+    el.classList.toggle('active', n === state.step);
+    el.classList.toggle('done', n < state.step);
+    el.querySelector('.cw-step-dot').innerHTML = n < state.step ? iconCheck() : String(n);
+  });
+}
+
+function renderPanels() {
+  document.querySelectorAll('.cw-panel').forEach(p => p.classList.toggle('active', +p.dataset.panel === state.step));
+}
+
+function typeName() { return t[TYPES.find(x => x.key === state.type).name]; }
+
+function focusSummary() {
+  if (state.type === 'confirm' || state.focus.size === 0) return t.none;
+  return [...state.focus].map(f => t['f_' + f]).join(', ');
+}
+
+function renderSummary() {
+  const rows = [
+    [t.sumType, typeName()],
+    [t.sumReason, t['r_' + state.reason]],
+    [t.sumFocus, focusSummary()],
+    [t.sumNeeded, fmtDate(state.needed)],
+    [t.sumLang, langLabel(state.letterLang)],
+    [t.sumDelivery, t['d_' + state.delivery]],
+    [t.sumNote, state.note.trim() || t.none]
+  ];
+  $('#cwSummary').innerHTML = rows.map(([k, v]) =>
+    `<div class="cw-sum-row"><span class="cw-sum-k">${k}</span><span class="cw-sum-v">${v}</span></div>`
+  ).join('');
+  $('#cwProcessing').textContent = tr('processing', { name: HR_CONTACT });
+}
+
+function genRef() {
+  const y = now.getFullYear();
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return `RL-${y}-${n}`;
+}
+
+function readyDate() {
+  const byProcess = addWorkdays(now, 10);
+  return state.needed > byProcess ? byProcess : state.needed;
+}
+
+function renderDone() {
+  $('#cwDoneText').textContent = tr('doneText', { name: HR_CONTACT, date: fmtDate(readyDate()) });
+  $('#cwRef').textContent = genRef();
+  renderHistory();
+}
+
+function renderHistory() {
+  const items = [
+    { type: typeName(), date: now, status: 'processing' },
+    { type: t.t_interim_n, date: daysAgo(12), status: 'review' },
+    { type: t.t_confirm_n, date: daysAgo(47), status: 'done' }
+  ];
+  const map = {
+    processing: { color: 'var(--warning)', label: t.stProcessing, cls: 'pend' },
+    review:     { color: 'var(--primary)', label: t.stReview, cls: 'neutral' },
+    done:       { color: 'var(--success)', label: t.stDone, cls: 'ok' }
+  };
+  $('#cwHistory').innerHTML = items.map(it => {
+    const s = map[it.status];
+    return `
+      <div class="cw-hist-item">
+        <span class="cw-hist-dot" style="background:${s.color}"></span>
+        <div class="cw-hist-meta">
+          <div class="cw-hist-title">${it.type}</div>
+          <div class="cw-hist-sub">${fmtShort(it.date)}</div>
+        </div>
+        <span class="cw-badge ${s.cls}">${s.label}</span>
+      </div>`;
+  }).join('');
+}
+
+function renderFooter() {
+  const back = $('#cwBack');
+  const next = $('#cwNext');
+  const nextLabel = next.querySelector('[data-i18n="next"]');
+  const nextIcon = next.querySelector('svg');
+
+  back.style.visibility = (state.step === 1 || state.step === 4) ? 'hidden' : 'visible';
+
+  if (state.step === 3) {
+    nextLabel.textContent = t.submit;
+    nextIcon.style.display = 'none';
+  } else if (state.step === 4) {
+    nextLabel.textContent = t.newReq;
+    nextIcon.style.display = 'none';
+  } else {
+    nextLabel.textContent = t.next;
+    nextIcon.style.display = '';
+  }
+}
+
+function render() {
+  renderStepper();
+  renderPanels();
+  if (state.step === 2) buildChips();
+  if (state.step === 3) renderSummary();
+  if (state.step === 4) renderDone();
+  renderFooter();
+}
+
+function goNext() {
+  if (state.step === 4) { resetFlow(); return; }
+  state.step = Math.min(4, state.step + 1);
+  render();
+}
+function goBack() {
+  state.step = Math.max(1, state.step - 1);
+  render();
+}
+
+function resetFlow() {
+  state.step = 1;
+  state.type = 'final';
+  state.reason = 'application';
+  state.focus = new Set();
+  state.needed = addWorkdays(now, 14);
+  state.delivery = 'pdf';
+  state.note = '';
+  buildTypes();
+  buildReason();
+  buildChips();
+  buildDelivery();
+  $('#cwNeeded').value = toInputVal(state.needed);
+  $('#cwNote').value = '';
+  render();
+}
+
+// — Init —
+function init() {
+  applySBBrand();
+  applyTranslations();
+
+  buildTypes();
+  buildReason();
+  buildChips();
+  buildLangSelect();
+  buildDelivery();
+
+  const needed = $('#cwNeeded');
+  needed.value = toInputVal(state.needed);
+  needed.min = toInputVal(now);
+  needed.onchange = e => { state.needed = new Date(e.target.value + 'T00:00:00'); };
+
+  $('#cwNote').oninput = e => { state.note = e.target.value; };
+
+  $('#cwNext').onclick = goNext;
+  $('#cwBack').onclick = goBack;
+
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- Widget usage counter — see CLAUDE.md -->
+<script>(function(){try{if(location.search.indexOf('preview=1')!==-1)return;var n=location.pathname.split('/').pop();if(!n||n==='index.html')return;var url='https://widget-counter.klauejohann.workers.dev/bump/'+encodeURIComponent(n);if(navigator.sendBeacon)navigator.sendBeacon(url);else fetch(url,{method:'POST',keepalive:true}).catch(function(){});var k='widgetCounts',c=JSON.parse(localStorage.getItem(k)||'{}');c[n]=(c[n]||0)+1;localStorage.setItem(k,JSON.stringify(c));}catch(e){}})();</script>
+</body>
+</html>
