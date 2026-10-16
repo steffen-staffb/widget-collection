@@ -385,7 +385,7 @@
                 <div class="cw-banner warn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
                     <div>
-                        <strong data-i18n="ruleTitle">A certificate is required from day 3</strong>
+                        <strong data-i18n="ruleTitle">A certificate is required from day 5</strong>
                         <span id="cwDeadline"></span>
                     </div>
                 </div>
@@ -481,7 +481,7 @@ const T = {
     mgrHint: 'Automatisch benachrichtigt: ${name}',
     s2Title: 'Arztzeugnis',
     s2Sub: 'Lade ein Foto oder PDF deines Arztzeugnisses hoch.',
-    ruleTitle: 'Ab dem 3. Krankheitstag ist ein Arztzeugnis erforderlich',
+    ruleTitle: 'Ab dem 5. Krankheitstag ist ein Arztzeugnis erforderlich',
     deadlineTxt: 'Einzureichen bis spätestens ${date}.',
     deadlineOk: 'Für deine voraussichtliche Dauer ist noch kein Zeugnis zwingend – du kannst es trotzdem beilegen.',
     dropTitle: 'Zum Hochladen tippen oder Datei hierher ziehen',
@@ -520,7 +520,7 @@ const T = {
     mgrHint: 'Notifié automatiquement : ${name}',
     s2Title: 'Certificat médical',
     s2Sub: 'Téléchargez une photo ou un PDF de votre certificat médical.',
-    ruleTitle: 'Un certificat est requis à partir du 3e jour de maladie',
+    ruleTitle: 'Un certificat est requis à partir du 5e jour de maladie',
     deadlineTxt: 'À transmettre au plus tard le ${date}.',
     deadlineOk: "Un certificat n'est pas obligatoire pour la durée prévue – vous pouvez toutefois le joindre.",
     dropTitle: 'Appuyez pour téléverser ou glissez un fichier ici',
@@ -559,7 +559,7 @@ const T = {
     mgrHint: 'Notificado automáticamente: ${name}',
     s2Title: 'Certificado médico',
     s2Sub: 'Sube una foto o PDF de tu certificado médico.',
-    ruleTitle: 'Se requiere certificado a partir del 3.º día de enfermedad',
+    ruleTitle: 'Se requiere certificado a partir del 5.º día de enfermedad',
     deadlineTxt: 'A entregar como máximo el ${date}.',
     deadlineOk: 'No es obligatorio un certificado para la duración prevista, pero puedes adjuntarlo igualmente.',
     dropTitle: 'Toca para subir o arrastra un archivo aquí',
@@ -598,7 +598,7 @@ const T = {
     mgrHint: '自動通知先：${name}',
     s2Title: '診断書',
     s2Sub: '診断書の写真またはPDFをアップロードしてください。',
-    ruleTitle: '病欠3日目から診断書が必要です',
+    ruleTitle: '病欠5日目から診断書が必要です',
     deadlineTxt: '提出期限：${date}',
     deadlineOk: '見込み期間では診断書は必須ではありませんが、添付も可能です。',
     dropTitle: 'タップしてアップロード、またはファイルをドラッグ',
@@ -637,7 +637,7 @@ const T = {
     mgrHint: 'Automatically notified: ${name}',
     s2Title: 'Medical certificate',
     s2Sub: "Upload a photo or PDF of your doctor's certificate.",
-    ruleTitle: 'A certificate is required from day 3 of illness',
+    ruleTitle: 'A certificate is required from day 5 of illness',
     deadlineTxt: 'To be submitted by ${date} at the latest.',
     deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
     dropTitle: 'Tap to upload or drag a file here',
@@ -676,7 +676,7 @@ const T = {
     mgrHint: 'Automatically notified: ${name}',
     s2Title: 'Medical certificate',
     s2Sub: "Upload a photo or PDF of your doctor's certificate.",
-    ruleTitle: 'A certificate is required from day 3 of illness',
+    ruleTitle: 'A certificate is required from day 5 of illness',
     deadlineTxt: 'To be submitted by ${date} at the latest.',
     deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
     dropTitle: 'Tap to upload or drag a file here',
@@ -739,11 +739,11 @@ const DURATIONS = [
 ];
 const durByKey = k => DURATIONS.find(d => d.key === k) || DURATIONS[2];
 
-// Certificate becomes mandatory from the 3rd day of illness
-function certRequired() { return durByKey(state.durationKey).days >= 3; }
+// Certificate becomes mandatory from the 5th day of illness
+function certRequired() { return durByKey(state.durationKey).days >= 5; }
 function certDeadline() {
-  // Deadline = first day + 3 calendar days
-  const d = new Date(state.start); d.setDate(d.getDate() + 3); return d;
+  // Deadline = first day + 5 calendar days
+  const d = new Date(state.start); d.setDate(d.getDate() + 5); return d;
 }
 
 // — i18n static —
