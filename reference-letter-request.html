@@ -5,10 +5,10 @@
     <script>(function(){try{var b=new URLSearchParams(location.search).get('brand');if(b&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(b)){document.documentElement.style.setProperty('--sb-brand',b);}}catch(e){}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="widget-name" content="Sick Leave &amp; Certificate">
-    <meta name="widget-description" content="Report sick leave and submit a medical certificate in a guided, multi-step self-service flow.">
+    <meta name="widget-name" content="Reference Letter Request">
+    <meta name="widget-description" content="Request an employment reference (Arbeitszeugnis) through a guided, multi-step self-service flow that explains the process and collects the required details.">
     <meta name="widget-tags" content="HR Data, Forms">
-    <title>Sick Leave &amp; Certificate</title>
+    <title>Reference Letter Request</title>
     <style>
         :root {
             --primary: var(--sb-brand, #2563eb);
@@ -111,7 +111,7 @@
         .cw-section-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
         .cw-section-sub { font-size: 13px; color: var(--text-light); margin-bottom: 14px; }
 
-        .cw-field { margin-bottom: 12px; }
+        .cw-field { margin-bottom: 10px; }
         .cw-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
         .cw-input, .cw-select, .cw-textarea {
             width: 100%;
@@ -131,30 +131,53 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
         }
-        .cw-textarea { resize: vertical; min-height: 50px; }
+        .cw-textarea { resize: vertical; min-height: 46px; }
         .cw-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .cw-row > * { min-width: 0; }
         .cw-hint { font-size: 12px; color: var(--text-light); margin-top: 5px; }
 
-        /* Segmented choice */
-        .cw-choice { display: flex; gap: 10px; }
-        .cw-choice-opt {
-            flex: 1;
+        /* Type cards (vertical, with description) */
+        .cw-types { display: flex; flex-direction: column; gap: 8px; }
+        .cw-type-opt {
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: 12px;
+            padding: 11px 13px;
             cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-            font-size: 14px; font-weight: 600;
+            display: flex; align-items: flex-start; gap: 11px;
             transition: all .15s;
         }
-        .cw-choice-opt svg { width: 20px; height: 20px; color: var(--text-light); }
-        .cw-choice-opt.sel {
-            border-color: var(--primary);
-            background: color-mix(in srgb, var(--primary) 8%, transparent);
-            color: var(--primary);
+        .cw-type-opt:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); }
+        .cw-type-opt.sel { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 7%, transparent); }
+        .cw-type-ic {
+            width: 34px; height: 34px; flex: 0 0 34px;
+            border-radius: 9px;
+            background: var(--bg-gray);
+            color: var(--text-light);
+            display: flex; align-items: center; justify-content: center;
         }
-        .cw-choice-opt.sel svg { color: var(--primary); }
+        .cw-type-opt.sel .cw-type-ic { background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary); }
+        .cw-type-ic svg { width: 19px; height: 19px; }
+        .cw-type-meta { flex: 1; min-width: 0; }
+        .cw-type-name { font-size: 14px; font-weight: 600; }
+        .cw-type-desc { font-size: 12px; color: var(--text-light); margin-top: 1px; }
+        .cw-type-check { flex: 0 0 18px; color: var(--primary); opacity: 0; margin-top: 8px; }
+        .cw-type-opt.sel .cw-type-check { opacity: 1; }
+        .cw-type-check svg { width: 18px; height: 18px; }
+
+        /* Chips (multi-select) */
+        .cw-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cw-chip {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 13px;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all .15s;
+            user-select: none;
+        }
+        .cw-chip:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); }
+        .cw-chip.sel { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); }
 
         /* Info banner */
         .cw-banner {
@@ -165,61 +188,9 @@
             margin-bottom: 14px;
         }
         .cw-banner svg { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 1px; }
-        .cw-banner.warn { background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--text); }
-        .cw-banner.warn svg { color: var(--warning); }
         .cw-banner.info { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--text); }
         .cw-banner.info svg { color: var(--primary); }
         .cw-banner strong { display: block; margin-bottom: 2px; }
-
-        /* Dropzone */
-        .cw-drop {
-            border: 2px dashed var(--border);
-            border-radius: 14px;
-            padding: 18px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all .15s;
-            background: var(--bg-gray);
-        }
-        .cw-drop:hover, .cw-drop.over { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, transparent); }
-        .cw-drop svg { width: 28px; height: 28px; color: var(--primary); margin-bottom: 6px; }
-        .cw-drop-title { font-size: 14px; font-weight: 600; }
-        .cw-drop-sub { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-
-        .cw-file {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 13px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-top: 12px;
-        }
-        .cw-file-ic {
-            width: 38px; height: 38px; flex: 0 0 38px;
-            border-radius: 9px;
-            background: color-mix(in srgb, var(--success) 16%, transparent);
-            color: var(--success);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .cw-file-ic svg { width: 20px; height: 20px; }
-        .cw-file-meta { flex: 1; min-width: 0; }
-        .cw-file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cw-file-size { font-size: 12px; color: var(--text-light); }
-        .cw-file-x {
-            border: none; background: none; cursor: pointer;
-            color: var(--text-light); padding: 6px; border-radius: 8px;
-            display: flex;
-        }
-        .cw-file-x:hover { background: var(--bg-gray); color: var(--danger); }
-        .cw-file-x svg { width: 18px; height: 18px; }
-
-        .cw-later {
-            margin-top: 10px;
-            display: flex; align-items: center; gap: 10px;
-            font-size: 13px; color: var(--text-light);
-            cursor: pointer;
-            padding: 7px 2px;
-        }
-        .cw-later input { width: 16px; height: 16px; accent-color: var(--primary); }
 
         /* Summary */
         .cw-summary { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
@@ -230,7 +201,7 @@
             border-bottom: 1px solid var(--border);
         }
         .cw-sum-row:last-child { border-bottom: none; }
-        .cw-sum-k { color: var(--text-light); }
+        .cw-sum-k { color: var(--text-light); flex: 0 0 auto; }
         .cw-sum-v { font-weight: 600; text-align: right; }
 
         /* Badges */
@@ -279,7 +250,7 @@
         }
         .cw-success-ic svg { width: 28px; height: 28px; }
         .cw-success h2 { font-size: 18px; margin-bottom: 5px; }
-        .cw-success p { font-size: 13px; color: var(--text-light); max-width: 420px; margin: 0 auto 6px; }
+        .cw-success p { font-size: 13px; color: var(--text-light); max-width: 440px; margin: 0 auto 6px; }
         .cw-ref {
             display: inline-block;
             margin-top: 4px;
@@ -301,12 +272,40 @@
             border-radius: 12px;
             margin-bottom: 7px;
         }
-        .cw-hist-dot {
-            width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px;
-        }
+        .cw-hist-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px; }
         .cw-hist-meta { flex: 1; min-width: 0; }
         .cw-hist-title { font-size: 13px; font-weight: 600; }
         .cw-hist-sub { font-size: 12px; color: var(--text-light); }
+
+        /* Confirmation modal */
+        .cw-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(17, 24, 39, .45);
+            display: none; align-items: center; justify-content: center;
+            padding: 16px; z-index: 100;
+        }
+        .cw-modal-overlay.show { display: flex; animation: fade .2s ease; }
+        .cw-modal {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%; max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25);
+            text-align: center;
+        }
+        .cw-modal-ic {
+            width: 48px; height: 48px; margin: 0 auto 12px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--warning) 16%, transparent);
+            color: var(--warning);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cw-modal-ic svg { width: 26px; height: 26px; }
+        .cw-modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .cw-modal p { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+        .cw-modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+        .cw-modal-actions .cw-btn { width: 100%; justify-content: center; }
     </style>
 </head>
 <body>
@@ -314,11 +313,11 @@
     <div class="cw-card">
         <div class="cw-header">
             <div class="cw-header-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"/><path d="M12 9v6"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
             </div>
             <div>
-                <h1 data-i18n="appTitle">Report Sick Leave</h1>
-                <p data-i18n="appSub">Notify your manager and submit your medical certificate</p>
+                <h1 data-i18n="appTitle">Request a Reference Letter</h1>
+                <p data-i18n="appSub">Request your employment reference and track its status</p>
             </div>
         </div>
 
@@ -326,11 +325,11 @@
         <div class="cw-stepper" id="cwStepper">
             <div class="cw-step" data-step="1">
                 <div class="cw-step-dot">1</div>
-                <div class="cw-step-label" data-i18n="step1">Absence</div>
+                <div class="cw-step-label" data-i18n="step1">Type</div>
             </div>
             <div class="cw-step" data-step="2">
                 <div class="cw-step-dot">2</div>
-                <div class="cw-step-label" data-i18n="step2">Certificate</div>
+                <div class="cw-step-label" data-i18n="step2">Details</div>
             </div>
             <div class="cw-step" data-step="3">
                 <div class="cw-step-dot">3</div>
@@ -345,77 +344,57 @@
         <div class="cw-body">
             <!-- STEP 1 -->
             <div class="cw-panel active" data-panel="1">
-                <div class="cw-section-title" data-i18n="s1Title">Your absence</div>
-                <div class="cw-section-sub" data-i18n="s1Sub">Tell us when your illness started and how long you expect to be absent.</div>
-
-                <div class="cw-field">
-                    <label class="cw-label" data-i18n="typeLabel">Type of absence</label>
-                    <div class="cw-choice" id="cwType">
-                        <div class="cw-choice-opt sel" data-val="illness">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H7a2 2 0 0 0-2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h2v-1a3 3 0 0 1 6 0v1h2a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V8a2 2 0 0 0-2-2h-2V5a3 3 0 0 0-3-3Z"/></svg>
-                            <span data-i18n="typeIllness">Illness</span>
-                        </div>
-                        <div class="cw-choice-opt" data-val="accident">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-3 7h5l-3 7"/><path d="M4 22h16"/></svg>
-                            <span data-i18n="typeAccident">Accident</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cw-row">
-                    <div class="cw-field">
-                        <label class="cw-label" for="cwStart" data-i18n="firstDay">First day of absence</label>
-                        <input type="date" id="cwStart" class="cw-input">
-                    </div>
-                    <div class="cw-field">
-                        <label class="cw-label" for="cwDuration" data-i18n="expDuration">Expected duration</label>
-                        <select id="cwDuration" class="cw-select"></select>
-                    </div>
-                </div>
-
-                <div class="cw-field">
-                    <label class="cw-label" for="cwNote" data-i18n="noteLabel">Note for your manager (optional)</label>
-                    <textarea id="cwNote" class="cw-textarea" data-i18n-placeholder="notePh" placeholder="e.g. reachable by email in the afternoon"></textarea>
-                    <div class="cw-hint" id="cwMgrHint"></div>
-                </div>
+                <div class="cw-section-title" data-i18n="s1Title">What do you need?</div>
+                <div class="cw-section-sub" data-i18n="s1Sub">Choose the type of reference. HR will draft it and send it to you for review.</div>
+                <div class="cw-types" id="cwTypes"></div>
             </div>
 
             <!-- STEP 2 -->
             <div class="cw-panel" data-panel="2">
-                <div class="cw-section-title" data-i18n="s2Title">Medical certificate</div>
-                <div class="cw-section-sub" data-i18n="s2Sub">Upload a photo or PDF of your doctor's certificate (Arztzeugnis).</div>
+                <div class="cw-section-title" data-i18n="s2Title">Your details</div>
+                <div class="cw-section-sub" data-i18n="s2Sub">A few details help HR tailor your reference.</div>
 
-                <div class="cw-banner warn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-                    <div>
-                        <strong data-i18n="ruleTitle">A certificate is required from day 5</strong>
-                        <span id="cwDeadline"></span>
+                <div class="cw-row">
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwReason" data-i18n="reasonLabel">Reason for the request</label>
+                        <select id="cwReason" class="cw-select"></select>
+                    </div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwNeeded" data-i18n="neededLabel">Needed by</label>
+                        <input type="date" id="cwNeeded" class="cw-input">
                     </div>
                 </div>
 
-                <div class="cw-drop" id="cwDrop">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
-                    <div class="cw-drop-title" data-i18n="dropTitle">Tap to upload or drag a file here</div>
-                    <div class="cw-drop-sub" data-i18n="dropSub">PDF, JPG or PNG · max. 10 MB</div>
+                <div class="cw-field" id="cwFocusField">
+                    <label class="cw-label" data-i18n="focusLabel">Areas to emphasise (optional)</label>
+                    <div class="cw-chips" id="cwChips"></div>
                 </div>
-                <input type="file" id="cwFileInput" accept="image/*,application/pdf" hidden>
 
-                <div id="cwFileWrap"></div>
+                <div class="cw-row">
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwLangSel" data-i18n="langLabel">Language of the letter</label>
+                        <select id="cwLangSel" class="cw-select"></select>
+                    </div>
+                    <div class="cw-field">
+                        <label class="cw-label" for="cwDelivery" data-i18n="deliveryLabel">Delivery</label>
+                        <select id="cwDelivery" class="cw-select"></select>
+                    </div>
+                </div>
 
-                <label class="cw-later">
-                    <input type="checkbox" id="cwLater">
-                    <span data-i18n="laterLabel">I don't have the certificate yet — submit it later</span>
-                </label>
+                <div class="cw-field">
+                    <label class="cw-label" for="cwNote" data-i18n="noteLabel">Note for HR (optional)</label>
+                    <textarea id="cwNote" class="cw-textarea" data-i18n-placeholder="notePh" placeholder="e.g. applying for a new role, please highlight project leadership"></textarea>
+                </div>
             </div>
 
             <!-- STEP 3 -->
             <div class="cw-panel" data-panel="3">
                 <div class="cw-section-title" data-i18n="s3Title">Review &amp; submit</div>
-                <div class="cw-section-sub" data-i18n="s3Sub">Please check your details before submitting.</div>
+                <div class="cw-section-sub" data-i18n="s3Sub">Please check your request before submitting.</div>
                 <div class="cw-summary" id="cwSummary"></div>
-                <div class="cw-banner info" style="margin-top:18px;margin-bottom:0;">
+                <div class="cw-banner info" style="margin-top:14px;margin-bottom:0;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="10"/></svg>
-                    <div id="cwPrivacy"></div>
+                    <div id="cwProcessing"></div>
                 </div>
             </div>
 
@@ -425,13 +404,13 @@
                     <div class="cw-success-ic">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                     </div>
-                    <h2 data-i18n="doneTitle">Sick leave reported</h2>
+                    <h2 data-i18n="doneTitle">Request submitted</h2>
                     <p id="cwDoneText"></p>
                     <div class="cw-ref" id="cwRef">—</div>
                 </div>
 
                 <div class="cw-history">
-                    <div class="cw-history-h" data-i18n="historyTitle">Your recent reports</div>
+                    <div class="cw-history-h" data-i18n="historyTitle">Your recent requests</div>
                     <div id="cwHistory"></div>
                 </div>
             </div>
@@ -443,6 +422,21 @@
                 <span data-i18n="next">Continue</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation modal: reference vs. confirmation -->
+<div class="cw-modal-overlay" id="cwModal">
+    <div class="cw-modal" role="dialog" aria-modal="true">
+        <div class="cw-modal-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <h3 data-i18n="modalTitle">Do you really need a full reference?</h3>
+        <p data-i18n="modalText">A full reference includes a detailed assessment of your duties and performance and takes considerable effort to produce. For many purposes a simple employment confirmation is enough.</p>
+        <div class="cw-modal-actions">
+            <button class="cw-btn cw-btn-primary" id="cwModalSwitch" data-i18n="modalSwitch">A confirmation is enough</button>
+            <button class="cw-btn cw-btn-ghost" id="cwModalKeep" data-i18n="modalKeep">Yes, request a reference</button>
         </div>
     </div>
 </div>
@@ -465,243 +459,249 @@ const LOCALE = {
   'ja': 'ja-JP', 'en-GB': 'en-GB', 'en-US': 'en-US'
 }[LANG];
 
-const MANAGER = 'Martin Wolf';
+const HR_CONTACT = 'Elizabeth Rorke';
 
 // — Translations —
 const T = {
   de: {
-    appTitle: 'Krankmeldung erfassen',
-    appSub: 'Vorgesetzte informieren und Arztzeugnis einreichen',
-    step1: 'Abwesenheit', step2: 'Arztzeugnis', step3: 'Prüfen', step4: 'Fertig',
-    s1Title: 'Deine Abwesenheit',
-    s1Sub: 'Gib an, wann deine Krankheit begonnen hat und wie lange du voraussichtlich fehlst.',
-    typeLabel: 'Art der Abwesenheit',
-    typeIllness: 'Krankheit', typeAccident: 'Unfall',
-    firstDay: 'Erster Abwesenheitstag',
-    expDuration: 'Voraussichtliche Dauer',
-    noteLabel: 'Notiz an Vorgesetzte (optional)',
-    notePh: 'z. B. am Nachmittag per E-Mail erreichbar',
-    mgrHint: 'Automatisch benachrichtigt: ${name}',
-    s2Title: 'Arztzeugnis',
-    s2Sub: 'Lade ein Foto oder PDF deines Arztzeugnisses hoch.',
-    ruleTitle: 'Ab dem 5. Krankheitstag ist ein Arztzeugnis erforderlich',
-    deadlineTxt: 'Einzureichen bis spätestens ${date}.',
-    deadlineOk: 'Für deine voraussichtliche Dauer ist noch kein Zeugnis zwingend – du kannst es trotzdem beilegen.',
-    dropTitle: 'Zum Hochladen tippen oder Datei hierher ziehen',
-    dropSub: 'PDF, JPG oder PNG · max. 10 MB',
-    laterLabel: 'Ich habe das Zeugnis noch nicht – später nachreichen',
+    appTitle: 'Arbeitszeugnis beantragen',
+    appSub: 'Beantrage dein Arbeitszeugnis und verfolge den Status',
+    step1: 'Art', step2: 'Angaben', step3: 'Prüfen', step4: 'Fertig',
+    s1Title: 'Was benötigst du?',
+    s1Sub: 'Wähle die Art des Zeugnisses. HR erstellt einen Entwurf und schickt ihn dir zur Freigabe.',
+    t_interim_n: 'Zwischenzeugnis',
+    t_interim_d: 'Während des laufenden Arbeitsverhältnisses, z. B. bei Vorgesetztenwechsel.',
+    t_final_n: 'Schlusszeugnis (Vollzeugnis)',
+    t_final_d: 'Bei Austritt – mit vollständiger Tätigkeits- und Leistungsbeurteilung.',
+    t_confirm_n: 'Arbeitsbestätigung',
+    t_confirm_d: 'Einfache Bestätigung von Anstellung und Dauer, ohne Bewertung.',
+    s2Title: 'Deine Angaben',
+    s2Sub: 'Ein paar Angaben helfen HR, dein Zeugnis passend zu formulieren.',
+    reasonLabel: 'Grund des Antrags',
+    r_application: 'Bewerbung', r_internal: 'Interner Wechsel', r_leaving: 'Austritt', r_personal: 'Persönliche Unterlagen',
+    focusLabel: 'Zu betonende Bereiche (optional)',
+    f_leadership: 'Führung', f_projects: 'Projektarbeit', f_customer: 'Kundenkontakt', f_expertise: 'Fachkompetenz', f_teamwork: 'Teamarbeit', f_sales: 'Verkauf',
+    neededLabel: 'Benötigt bis',
+    langLabel: 'Sprache des Zeugnisses',
+    deliveryLabel: 'Zustellung',
+    d_pdf: 'PDF (digital)', d_print: 'Gedruckt (Post)',
+    noteLabel: 'Notiz an HR (optional)',
+    notePh: 'z. B. Bewerbung auf neue Stelle, bitte Projektleitung hervorheben',
     s3Title: 'Prüfen & absenden',
-    s3Sub: 'Bitte überprüfe deine Angaben vor dem Absenden.',
-    privacy: 'Deine Gesundheitsdaten werden vertraulich behandelt und nur an HR sowie deine zuständige Führungskraft übermittelt.',
-    sumType: 'Art', sumStart: 'Erster Tag', sumDuration: 'Dauer', sumNote: 'Notiz',
-    sumCert: 'Arztzeugnis', sumManager: 'Vorgesetzte(r)',
-    certUploaded: 'Hochgeladen', certLater: 'Wird nachgereicht', certNone: 'Nicht erforderlich', none: '—',
-    doneTitle: 'Krankmeldung übermittelt',
-    doneUploaded: 'Deine Krankmeldung und das Arztzeugnis wurden an HR und ${name} übermittelt.',
-    doneLater: 'Deine Krankmeldung wurde übermittelt. Bitte reiche das Arztzeugnis bis ${date} nach.',
-    doneNone: 'Deine Krankmeldung wurde an HR und ${name} übermittelt.',
-    historyTitle: 'Deine letzten Meldungen',
-    hDays: '${n} Tag(e)', hFrom: 'ab ${date}',
-    stOpen: 'Zeugnis ausstehend', stApproved: 'Genehmigt', stClosed: 'Abgeschlossen',
-    back: 'Zurück', next: 'Weiter', submit: 'Absenden', newReport: 'Neue Meldung',
-    durHalf: 'Halber Tag', durDays: '${n} Tage', durWeek: '1 Woche', durMore: 'Länger / unklar',
-    uploadErr: 'Bitte lade ein Arztzeugnis hoch oder wähle „später nachreichen".',
-    today: 'Heute', yesterday: 'Gestern'
+    s3Sub: 'Bitte überprüfe deinen Antrag vor dem Absenden.',
+    processing: 'Die übliche Bearbeitungszeit beträgt 10 Arbeitstage. Du erhältst den Entwurf von ${name} aus HR zur Freigabe.',
+    sumType: 'Art', sumReason: 'Grund', sumFocus: 'Schwerpunkte', sumNeeded: 'Benötigt bis',
+    sumLang: 'Sprache', sumDelivery: 'Zustellung', sumNote: 'Notiz', none: '—',
+    doneTitle: 'Antrag übermittelt',
+    doneText: 'Dein Antrag wurde an ${name} aus HR übermittelt. Voraussichtlich fertig bis ${date}.',
+    historyTitle: 'Deine letzten Anträge',
+    stProcessing: 'In Bearbeitung', stReview: 'Entwurf zur Freigabe', stDone: 'Abgeschlossen',
+    back: 'Zurück', next: 'Weiter', submit: 'Antrag absenden', newReq: 'Neuer Antrag',
+    langDe: 'Deutsch', langFr: 'Französisch', langIt: 'Italienisch', langEn: 'Englisch',
+    modalTitle: 'Wirklich ein Arbeitszeugnis?',
+    modalText: 'Ein Arbeitszeugnis enthält eine ausführliche Tätigkeits- und Leistungsbeurteilung und ist aufwändig zu erstellen. Für viele Zwecke – z. B. Behörden, Wohnungssuche oder Kreditantrag – genügt bereits eine einfache Arbeitsbestätigung.',
+    modalSwitch: 'Arbeitsbestätigung genügt',
+    modalKeep: 'Ja, Zeugnis beantragen'
   },
   fr: {
-    appTitle: 'Déclarer un arrêt maladie',
-    appSub: 'Informer votre responsable et transmettre le certificat médical',
-    step1: 'Absence', step2: 'Certificat', step3: 'Vérifier', step4: 'Terminé',
-    s1Title: 'Votre absence',
-    s1Sub: 'Indiquez quand votre maladie a commencé et la durée prévue de votre absence.',
-    typeLabel: "Type d'absence",
-    typeIllness: 'Maladie', typeAccident: 'Accident',
-    firstDay: 'Premier jour d\'absence',
-    expDuration: 'Durée prévue',
-    noteLabel: 'Note pour votre responsable (facultatif)',
-    notePh: "p. ex. joignable par e-mail l'après-midi",
-    mgrHint: 'Notifié automatiquement : ${name}',
-    s2Title: 'Certificat médical',
-    s2Sub: 'Téléchargez une photo ou un PDF de votre certificat médical.',
-    ruleTitle: 'Un certificat est requis à partir du 5e jour de maladie',
-    deadlineTxt: 'À transmettre au plus tard le ${date}.',
-    deadlineOk: "Un certificat n'est pas obligatoire pour la durée prévue – vous pouvez toutefois le joindre.",
-    dropTitle: 'Appuyez pour téléverser ou glissez un fichier ici',
-    dropSub: 'PDF, JPG ou PNG · max. 10 Mo',
-    laterLabel: "Je n'ai pas encore le certificat – le transmettre plus tard",
+    appTitle: 'Demander un certificat de travail',
+    appSub: 'Demandez votre certificat de travail et suivez son statut',
+    step1: 'Type', step2: 'Détails', step3: 'Vérifier', step4: 'Terminé',
+    s1Title: 'De quoi avez-vous besoin ?',
+    s1Sub: 'Choisissez le type de certificat. Les RH en rédigent un projet et vous l\'envoient pour validation.',
+    t_interim_n: 'Certificat intermédiaire',
+    t_interim_d: 'Pendant la relation de travail, p. ex. en cas de changement de responsable.',
+    t_final_n: 'Certificat final (complet)',
+    t_final_d: 'Au départ – avec évaluation complète des activités et des performances.',
+    t_confirm_n: 'Attestation de travail',
+    t_confirm_d: 'Simple confirmation de l\'emploi et de sa durée, sans évaluation.',
+    s2Title: 'Vos informations',
+    s2Sub: 'Quelques informations aident les RH à adapter votre certificat.',
+    reasonLabel: 'Motif de la demande',
+    r_application: 'Candidature', r_internal: 'Mobilité interne', r_leaving: 'Départ', r_personal: 'Dossier personnel',
+    focusLabel: 'Domaines à mettre en avant (facultatif)',
+    f_leadership: 'Encadrement', f_projects: 'Gestion de projet', f_customer: 'Relation client', f_expertise: 'Expertise', f_teamwork: 'Travail d\'équipe', f_sales: 'Vente',
+    neededLabel: 'Requis pour le',
+    langLabel: 'Langue du certificat',
+    deliveryLabel: 'Remise',
+    d_pdf: 'PDF (numérique)', d_print: 'Imprimé (courrier)',
+    noteLabel: 'Note pour les RH (facultatif)',
+    notePh: 'p. ex. candidature à un nouveau poste, merci de souligner la gestion de projet',
     s3Title: 'Vérifier et envoyer',
-    s3Sub: "Veuillez vérifier vos informations avant l'envoi.",
-    privacy: 'Vos données de santé sont traitées de manière confidentielle et transmises uniquement aux RH et à votre responsable.',
-    sumType: 'Type', sumStart: 'Premier jour', sumDuration: 'Durée', sumNote: 'Note',
-    sumCert: 'Certificat', sumManager: 'Responsable',
-    certUploaded: 'Téléversé', certLater: 'À transmettre', certNone: 'Non requis', none: '—',
-    doneTitle: 'Arrêt maladie déclaré',
-    doneUploaded: 'Votre déclaration et le certificat ont été transmis aux RH et à ${name}.',
-    doneLater: 'Votre déclaration a été transmise. Veuillez transmettre le certificat avant le ${date}.',
-    doneNone: 'Votre déclaration a été transmise aux RH et à ${name}.',
-    historyTitle: 'Vos déclarations récentes',
-    hDays: '${n} jour(s)', hFrom: 'dès le ${date}',
-    stOpen: 'Certificat en attente', stApproved: 'Approuvé', stClosed: 'Clôturé',
-    back: 'Retour', next: 'Continuer', submit: 'Envoyer', newReport: 'Nouvelle déclaration',
-    durHalf: 'Demi-journée', durDays: '${n} jours', durWeek: '1 semaine', durMore: 'Plus long / incertain',
-    uploadErr: 'Veuillez téléverser un certificat ou choisir « le transmettre plus tard ».',
-    today: "Aujourd'hui", yesterday: 'Hier'
+    s3Sub: 'Veuillez vérifier votre demande avant l\'envoi.',
+    processing: 'Le délai de traitement habituel est de 10 jours ouvrés. Vous recevrez le projet de ${name} des RH pour validation.',
+    sumType: 'Type', sumReason: 'Motif', sumFocus: 'Points forts', sumNeeded: 'Requis pour le',
+    sumLang: 'Langue', sumDelivery: 'Remise', sumNote: 'Note', none: '—',
+    doneTitle: 'Demande envoyée',
+    doneText: 'Votre demande a été transmise à ${name} des RH. Prête vers le ${date}.',
+    historyTitle: 'Vos demandes récentes',
+    stProcessing: 'En cours', stReview: 'Projet à valider', stDone: 'Terminé',
+    back: 'Retour', next: 'Continuer', submit: 'Envoyer la demande', newReq: 'Nouvelle demande',
+    langDe: 'Allemand', langFr: 'Français', langIt: 'Italien', langEn: 'Anglais',
+    modalTitle: 'Vraiment un certificat de travail ?',
+    modalText: "Un certificat de travail contient une évaluation détaillée des activités et des performances et demande un effort important. Pour de nombreux usages – administrations, recherche de logement ou demande de crédit – une simple attestation de travail suffit.",
+    modalSwitch: 'Une attestation suffit',
+    modalKeep: 'Oui, demander un certificat'
   },
   es: {
-    appTitle: 'Notificar baja por enfermedad',
-    appSub: 'Informa a tu responsable y envía el certificado médico',
-    step1: 'Ausencia', step2: 'Certificado', step3: 'Revisar', step4: 'Hecho',
-    s1Title: 'Tu ausencia',
-    s1Sub: 'Indica cuándo empezó tu enfermedad y cuánto tiempo prevés estar ausente.',
-    typeLabel: 'Tipo de ausencia',
-    typeIllness: 'Enfermedad', typeAccident: 'Accidente',
-    firstDay: 'Primer día de ausencia',
-    expDuration: 'Duración prevista',
-    noteLabel: 'Nota para tu responsable (opcional)',
-    notePh: 'p. ej. localizable por correo por la tarde',
-    mgrHint: 'Notificado automáticamente: ${name}',
-    s2Title: 'Certificado médico',
-    s2Sub: 'Sube una foto o PDF de tu certificado médico.',
-    ruleTitle: 'Se requiere certificado a partir del 5.º día de enfermedad',
-    deadlineTxt: 'A entregar como máximo el ${date}.',
-    deadlineOk: 'No es obligatorio un certificado para la duración prevista, pero puedes adjuntarlo igualmente.',
-    dropTitle: 'Toca para subir o arrastra un archivo aquí',
-    dropSub: 'PDF, JPG o PNG · máx. 10 MB',
-    laterLabel: 'Aún no tengo el certificado: lo entregaré más tarde',
+    appTitle: 'Solicitar certificado laboral',
+    appSub: 'Solicita tu certificado laboral y sigue su estado',
+    step1: 'Tipo', step2: 'Datos', step3: 'Revisar', step4: 'Hecho',
+    s1Title: '¿Qué necesitas?',
+    s1Sub: 'Elige el tipo de certificado. RR. HH. redactará un borrador y te lo enviará para su revisión.',
+    t_interim_n: 'Certificado intermedio',
+    t_interim_d: 'Durante la relación laboral, p. ej. al cambiar de responsable.',
+    t_final_n: 'Certificado final (completo)',
+    t_final_d: 'A la salida, con evaluación completa de funciones y desempeño.',
+    t_confirm_n: 'Constancia laboral',
+    t_confirm_d: 'Confirmación simple del empleo y su duración, sin evaluación.',
+    s2Title: 'Tus datos',
+    s2Sub: 'Algunos datos ayudan a RR. HH. a adaptar tu certificado.',
+    reasonLabel: 'Motivo de la solicitud',
+    r_application: 'Candidatura', r_internal: 'Cambio interno', r_leaving: 'Salida', r_personal: 'Archivo personal',
+    focusLabel: 'Áreas a destacar (opcional)',
+    f_leadership: 'Liderazgo', f_projects: 'Gestión de proyectos', f_customer: 'Atención al cliente', f_expertise: 'Competencia técnica', f_teamwork: 'Trabajo en equipo', f_sales: 'Ventas',
+    neededLabel: 'Necesario para',
+    langLabel: 'Idioma del certificado',
+    deliveryLabel: 'Entrega',
+    d_pdf: 'PDF (digital)', d_print: 'Impreso (correo)',
+    noteLabel: 'Nota para RR. HH. (opcional)',
+    notePh: 'p. ej. candidatura a un nuevo puesto, destacar la gestión de proyectos',
     s3Title: 'Revisar y enviar',
-    s3Sub: 'Comprueba tus datos antes de enviar.',
-    privacy: 'Tus datos de salud se tratan de forma confidencial y solo se envían a RR. HH. y a tu responsable.',
-    sumType: 'Tipo', sumStart: 'Primer día', sumDuration: 'Duración', sumNote: 'Nota',
-    sumCert: 'Certificado', sumManager: 'Responsable',
-    certUploaded: 'Subido', certLater: 'Pendiente de entrega', certNone: 'No requerido', none: '—',
-    doneTitle: 'Baja notificada',
-    doneUploaded: 'Tu notificación y el certificado se enviaron a RR. HH. y a ${name}.',
-    doneLater: 'Tu notificación se envió. Entrega el certificado antes del ${date}.',
-    doneNone: 'Tu notificación se envió a RR. HH. y a ${name}.',
-    historyTitle: 'Tus notificaciones recientes',
-    hDays: '${n} día(s)', hFrom: 'desde el ${date}',
-    stOpen: 'Certificado pendiente', stApproved: 'Aprobado', stClosed: 'Cerrado',
-    back: 'Atrás', next: 'Continuar', submit: 'Enviar', newReport: 'Nueva notificación',
-    durHalf: 'Medio día', durDays: '${n} días', durWeek: '1 semana', durMore: 'Más largo / incierto',
-    uploadErr: 'Sube un certificado o selecciona «entregar más tarde».',
-    today: 'Hoy', yesterday: 'Ayer'
+    s3Sub: 'Comprueba tu solicitud antes de enviarla.',
+    processing: 'El plazo de tramitación habitual es de 10 días laborables. Recibirás el borrador de ${name} de RR. HH. para su revisión.',
+    sumType: 'Tipo', sumReason: 'Motivo', sumFocus: 'Puntos clave', sumNeeded: 'Necesario para',
+    sumLang: 'Idioma', sumDelivery: 'Entrega', sumNote: 'Nota', none: '—',
+    doneTitle: 'Solicitud enviada',
+    doneText: 'Tu solicitud se envió a ${name} de RR. HH. Lista hacia el ${date}.',
+    historyTitle: 'Tus solicitudes recientes',
+    stProcessing: 'En curso', stReview: 'Borrador para revisar', stDone: 'Completado',
+    back: 'Atrás', next: 'Continuar', submit: 'Enviar solicitud', newReq: 'Nueva solicitud',
+    langDe: 'Alemán', langFr: 'Francés', langIt: 'Italiano', langEn: 'Inglés',
+    modalTitle: '¿Seguro que necesitas un certificado?',
+    modalText: 'Un certificado laboral incluye una evaluación detallada de funciones y desempeño y requiere bastante trabajo. Para muchos fines – administraciones, búsqueda de vivienda o solicitud de crédito – basta con una simple constancia laboral.',
+    modalSwitch: 'Me basta una constancia',
+    modalKeep: 'Sí, solicitar certificado'
   },
   ja: {
-    appTitle: '病気欠勤の届出',
-    appSub: '上司への通知と診断書の提出',
-    step1: '欠勤', step2: '診断書', step3: '確認', step4: '完了',
-    s1Title: '欠勤の内容',
-    s1Sub: '病気がいつ始まったか、どのくらい欠勤する見込みかをご記入ください。',
-    typeLabel: '欠勤の種類',
-    typeIllness: '病気', typeAccident: '怪我',
-    firstDay: '欠勤初日',
-    expDuration: '見込み期間',
-    noteLabel: '上司へのメモ（任意）',
-    notePh: '例：午後はメールで連絡可能',
-    mgrHint: '自動通知先：${name}',
-    s2Title: '診断書',
-    s2Sub: '診断書の写真またはPDFをアップロードしてください。',
-    ruleTitle: '病欠5日目から診断書が必要です',
-    deadlineTxt: '提出期限：${date}',
-    deadlineOk: '見込み期間では診断書は必須ではありませんが、添付も可能です。',
-    dropTitle: 'タップしてアップロード、またはファイルをドラッグ',
-    dropSub: 'PDF・JPG・PNG · 最大10MB',
-    laterLabel: 'まだ診断書がありません — 後で提出する',
+    appTitle: '在職証明書の申請',
+    appSub: '勤務証明書を申請し、ステータスを確認',
+    step1: '種類', step2: '詳細', step3: '確認', step4: '完了',
+    s1Title: '必要な書類は？',
+    s1Sub: '証明書の種類を選択してください。人事が草案を作成し、確認用にお送りします。',
+    t_interim_n: '中間証明書',
+    t_interim_d: '在職中に発行、例：上司の交代時など。',
+    t_final_n: '最終証明書（完全版）',
+    t_final_d: '退職時に発行 — 業務内容と評価を含む完全版。',
+    t_confirm_n: '在職確認書',
+    t_confirm_d: '雇用と期間のみを確認する簡易版（評価なし）。',
+    s2Title: '詳細情報',
+    s2Sub: 'いくつかの情報で人事が内容を最適化できます。',
+    reasonLabel: '申請理由',
+    r_application: '応募', r_internal: '社内異動', r_leaving: '退職', r_personal: '個人記録',
+    focusLabel: '強調したい分野（任意）',
+    f_leadership: 'マネジメント', f_projects: 'プロジェクト', f_customer: '顧客対応', f_expertise: '専門知識', f_teamwork: 'チームワーク', f_sales: '営業',
+    neededLabel: '必要期限',
+    langLabel: '証明書の言語',
+    deliveryLabel: '受取方法',
+    d_pdf: 'PDF（デジタル）', d_print: '印刷（郵送）',
+    noteLabel: '人事へのメモ（任意）',
+    notePh: '例：新しい職への応募、プロジェクト管理を強調希望',
     s3Title: '確認して送信',
-    s3Sub: '送信前に内容をご確認ください。',
-    privacy: '健康情報は厳重に扱われ、人事と担当の上司のみに送信されます。',
-    sumType: '種類', sumStart: '初日', sumDuration: '期間', sumNote: 'メモ',
-    sumCert: '診断書', sumManager: '上司',
-    certUploaded: 'アップロード済み', certLater: '後日提出', certNone: '不要', none: '—',
-    doneTitle: '病気欠勤を届け出ました',
-    doneUploaded: '届出と診断書を人事および${name}に送信しました。',
-    doneLater: '届出を送信しました。${date}までに診断書をご提出ください。',
-    doneNone: '届出を人事および${name}に送信しました。',
-    historyTitle: '最近の届出',
-    hDays: '${n}日間', hFrom: '${date}から',
-    stOpen: '診断書待ち', stApproved: '承認済み', stClosed: '完了',
-    back: '戻る', next: '次へ', submit: '送信', newReport: '新しい届出',
-    durHalf: '半日', durDays: '${n}日', durWeek: '1週間', durMore: 'それ以上／未定',
-    uploadErr: '診断書をアップロードするか「後で提出」を選択してください。',
-    today: '今日', yesterday: '昨日'
+    s3Sub: '送信前に申請内容をご確認ください。',
+    processing: '通常の処理期間は10営業日です。人事の${name}から確認用の草案が届きます。',
+    sumType: '種類', sumReason: '理由', sumFocus: '重点分野', sumNeeded: '必要期限',
+    sumLang: '言語', sumDelivery: '受取方法', sumNote: 'メモ', none: '—',
+    doneTitle: '申請を送信しました',
+    doneText: '申請は人事の${name}に送信されました。完成予定：${date}。',
+    historyTitle: '最近の申請',
+    stProcessing: '処理中', stReview: '草案確認待ち', stDone: '完了',
+    back: '戻る', next: '次へ', submit: '申請を送信', newReq: '新しい申請',
+    langDe: 'ドイツ語', langFr: 'フランス語', langIt: 'イタリア語', langEn: '英語',
+    modalTitle: '本当に在職証明書が必要ですか？',
+    modalText: '在職証明書には業務内容と評価の詳細が含まれ、作成に手間がかかります。行政手続き・住居探し・融資申請など多くの用途では、簡単な在職確認書で十分です。',
+    modalSwitch: '確認書で十分',
+    modalKeep: 'はい、証明書を申請'
   },
   'en-GB': {
-    appTitle: 'Report Sick Leave',
-    appSub: 'Notify your manager and submit your medical certificate',
-    step1: 'Absence', step2: 'Certificate', step3: 'Review', step4: 'Done',
-    s1Title: 'Your absence',
-    s1Sub: 'Tell us when your illness started and how long you expect to be absent.',
-    typeLabel: 'Type of absence',
-    typeIllness: 'Illness', typeAccident: 'Accident',
-    firstDay: 'First day of absence',
-    expDuration: 'Expected duration',
-    noteLabel: 'Note for your manager (optional)',
-    notePh: 'e.g. reachable by email in the afternoon',
-    mgrHint: 'Automatically notified: ${name}',
-    s2Title: 'Medical certificate',
-    s2Sub: "Upload a photo or PDF of your doctor's certificate.",
-    ruleTitle: 'A certificate is required from day 5 of illness',
-    deadlineTxt: 'To be submitted by ${date} at the latest.',
-    deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
-    dropTitle: 'Tap to upload or drag a file here',
-    dropSub: 'PDF, JPG or PNG · max. 10 MB',
-    laterLabel: "I don't have the certificate yet — submit it later",
+    appTitle: 'Request a Reference Letter',
+    appSub: 'Request your employment reference and track its status',
+    step1: 'Type', step2: 'Details', step3: 'Review', step4: 'Done',
+    s1Title: 'What do you need?',
+    s1Sub: 'Choose the type of reference. HR will draft it and send it to you for review.',
+    t_interim_n: 'Interim reference',
+    t_interim_d: 'During ongoing employment, e.g. when your manager changes.',
+    t_final_n: 'Final reference (full)',
+    t_final_d: 'On leaving — with a full assessment of duties and performance.',
+    t_confirm_n: 'Employment confirmation',
+    t_confirm_d: 'A simple confirmation of employment and duration, no assessment.',
+    s2Title: 'Your details',
+    s2Sub: 'A few details help HR tailor your reference.',
+    reasonLabel: 'Reason for the request',
+    r_application: 'Job application', r_internal: 'Internal move', r_leaving: 'Leaving', r_personal: 'Personal records',
+    focusLabel: 'Areas to emphasise (optional)',
+    f_leadership: 'Leadership', f_projects: 'Project work', f_customer: 'Customer contact', f_expertise: 'Expertise', f_teamwork: 'Teamwork', f_sales: 'Sales',
+    neededLabel: 'Needed by',
+    langLabel: 'Language of the letter',
+    deliveryLabel: 'Delivery',
+    d_pdf: 'PDF (digital)', d_print: 'Printed (post)',
+    noteLabel: 'Note for HR (optional)',
+    notePh: 'e.g. applying for a new role, please highlight project leadership',
     s3Title: 'Review & submit',
-    s3Sub: 'Please check your details before submitting.',
-    privacy: 'Your health data is treated confidentially and shared only with HR and your responsible manager.',
-    sumType: 'Type', sumStart: 'First day', sumDuration: 'Duration', sumNote: 'Note',
-    sumCert: 'Certificate', sumManager: 'Manager',
-    certUploaded: 'Uploaded', certLater: 'To be submitted', certNone: 'Not required', none: '—',
-    doneTitle: 'Sick leave reported',
-    doneUploaded: 'Your report and certificate have been sent to HR and ${name}.',
-    doneLater: 'Your report has been sent. Please submit the certificate by ${date}.',
-    doneNone: 'Your report has been sent to HR and ${name}.',
-    historyTitle: 'Your recent reports',
-    hDays: '${n} day(s)', hFrom: 'from ${date}',
-    stOpen: 'Certificate pending', stApproved: 'Approved', stClosed: 'Closed',
-    back: 'Back', next: 'Continue', submit: 'Submit', newReport: 'New report',
-    durHalf: 'Half day', durDays: '${n} days', durWeek: '1 week', durMore: 'Longer / unclear',
-    uploadErr: 'Please upload a certificate or choose "submit it later".',
-    today: 'Today', yesterday: 'Yesterday'
+    s3Sub: 'Please check your request before submitting.',
+    processing: 'The usual processing time is 10 working days. You will receive the draft from ${name} in HR for review.',
+    sumType: 'Type', sumReason: 'Reason', sumFocus: 'Emphasis', sumNeeded: 'Needed by',
+    sumLang: 'Language', sumDelivery: 'Delivery', sumNote: 'Note', none: '—',
+    doneTitle: 'Request submitted',
+    doneText: 'Your request has been sent to ${name} in HR. Expected ready by ${date}.',
+    historyTitle: 'Your recent requests',
+    stProcessing: 'In progress', stReview: 'Draft for review', stDone: 'Completed',
+    back: 'Back', next: 'Continue', submit: 'Submit request', newReq: 'New request',
+    langDe: 'German', langFr: 'French', langIt: 'Italian', langEn: 'English',
+    modalTitle: 'Do you really need a full reference?',
+    modalText: 'A full reference includes a detailed assessment of your duties and performance and takes considerable effort to produce. For many purposes — authorities, housing applications or loan requests — a simple employment confirmation is enough.',
+    modalSwitch: 'A confirmation is enough',
+    modalKeep: 'Yes, request a reference'
   },
   'en-US': {
-    appTitle: 'Report Sick Leave',
-    appSub: 'Notify your manager and submit your medical certificate',
-    step1: 'Absence', step2: 'Certificate', step3: 'Review', step4: 'Done',
-    s1Title: 'Your absence',
-    s1Sub: 'Tell us when your illness started and how long you expect to be absent.',
-    typeLabel: 'Type of absence',
-    typeIllness: 'Illness', typeAccident: 'Accident',
-    firstDay: 'First day of absence',
-    expDuration: 'Expected duration',
-    noteLabel: 'Note for your manager (optional)',
-    notePh: 'e.g. reachable by email in the afternoon',
-    mgrHint: 'Automatically notified: ${name}',
-    s2Title: 'Medical certificate',
-    s2Sub: "Upload a photo or PDF of your doctor's certificate.",
-    ruleTitle: 'A certificate is required from day 5 of illness',
-    deadlineTxt: 'To be submitted by ${date} at the latest.',
-    deadlineOk: "A certificate isn't mandatory for your expected duration — you may still attach one.",
-    dropTitle: 'Tap to upload or drag a file here',
-    dropSub: 'PDF, JPG or PNG · max. 10 MB',
-    laterLabel: "I don't have the certificate yet — submit it later",
+    appTitle: 'Request a Reference Letter',
+    appSub: 'Request your employment reference and track its status',
+    step1: 'Type', step2: 'Details', step3: 'Review', step4: 'Done',
+    s1Title: 'What do you need?',
+    s1Sub: 'Choose the type of reference. HR will draft it and send it to you for review.',
+    t_interim_n: 'Interim reference',
+    t_interim_d: 'During ongoing employment, e.g. when your manager changes.',
+    t_final_n: 'Final reference (full)',
+    t_final_d: 'On leaving — with a full assessment of duties and performance.',
+    t_confirm_n: 'Employment confirmation',
+    t_confirm_d: 'A simple confirmation of employment and duration, no assessment.',
+    s2Title: 'Your details',
+    s2Sub: 'A few details help HR tailor your reference.',
+    reasonLabel: 'Reason for the request',
+    r_application: 'Job application', r_internal: 'Internal move', r_leaving: 'Leaving', r_personal: 'Personal records',
+    focusLabel: 'Areas to emphasize (optional)',
+    f_leadership: 'Leadership', f_projects: 'Project work', f_customer: 'Customer contact', f_expertise: 'Expertise', f_teamwork: 'Teamwork', f_sales: 'Sales',
+    neededLabel: 'Needed by',
+    langLabel: 'Language of the letter',
+    deliveryLabel: 'Delivery',
+    d_pdf: 'PDF (digital)', d_print: 'Printed (mail)',
+    noteLabel: 'Note for HR (optional)',
+    notePh: 'e.g. applying for a new role, please highlight project leadership',
     s3Title: 'Review & submit',
-    s3Sub: 'Please check your details before submitting.',
-    privacy: 'Your health data is treated confidentially and shared only with HR and your responsible manager.',
-    sumType: 'Type', sumStart: 'First day', sumDuration: 'Duration', sumNote: 'Note',
-    sumCert: 'Certificate', sumManager: 'Manager',
-    certUploaded: 'Uploaded', certLater: 'To be submitted', certNone: 'Not required', none: '—',
-    doneTitle: 'Sick leave reported',
-    doneUploaded: 'Your report and certificate have been sent to HR and ${name}.',
-    doneLater: 'Your report has been sent. Please submit the certificate by ${date}.',
-    doneNone: 'Your report has been sent to HR and ${name}.',
-    historyTitle: 'Your recent reports',
-    hDays: '${n} day(s)', hFrom: 'from ${date}',
-    stOpen: 'Certificate pending', stApproved: 'Approved', stClosed: 'Closed',
-    back: 'Back', next: 'Continue', submit: 'Submit', newReport: 'New report',
-    durHalf: 'Half day', durDays: '${n} days', durWeek: '1 week', durMore: 'Longer / unclear',
-    uploadErr: 'Please upload a certificate or choose "submit it later".',
-    today: 'Today', yesterday: 'Yesterday'
+    s3Sub: 'Please check your request before submitting.',
+    processing: 'The usual processing time is 10 business days. You will receive the draft from ${name} in HR for review.',
+    sumType: 'Type', sumReason: 'Reason', sumFocus: 'Emphasis', sumNeeded: 'Needed by',
+    sumLang: 'Language', sumDelivery: 'Delivery', sumNote: 'Note', none: '—',
+    doneTitle: 'Request submitted',
+    doneText: 'Your request has been sent to ${name} in HR. Expected ready by ${date}.',
+    historyTitle: 'Your recent requests',
+    stProcessing: 'In progress', stReview: 'Draft for review', stDone: 'Completed',
+    back: 'Back', next: 'Continue', submit: 'Submit request', newReq: 'New request',
+    langDe: 'German', langFr: 'French', langIt: 'Italian', langEn: 'English',
+    modalTitle: 'Do you really need a full reference?',
+    modalText: 'A full reference includes a detailed assessment of your duties and performance and takes considerable effort to produce. For many purposes — authorities, housing applications or loan requests — a simple employment confirmation is enough.',
+    modalSwitch: 'A confirmation is enough',
+    modalKeep: 'Yes, request a reference'
   }
 };
 const t = T[LANG];
@@ -715,39 +715,34 @@ function tr(key, vars = {}) {
 // — Date helpers —
 const now = new Date();
 const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return d; };
-const daysFromNow = n => { const d = new Date(now); d.setDate(d.getDate() + n); return d; };
+const addWorkdays = (from, n) => { const d = new Date(from); let added = 0; while (added < n) { d.setDate(d.getDate() + 1); const wd = d.getDay(); if (wd !== 0 && wd !== 6) added++; } return d; };
 const fmtDate = (d, opt) => new Intl.DateTimeFormat(LOCALE, opt || { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
 const fmtShort = d => new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
 const toInputVal = d => { const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return z.toISOString().slice(0, 10); };
 
+// — Config data —
+const TYPES = [
+  { key: 'interim',  name: 't_interim_n', desc: 't_interim_d', icon: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>' },
+  { key: 'final',    name: 't_final_n',   desc: 't_final_d',   icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>' },
+  { key: 'confirm',  name: 't_confirm_n', desc: 't_confirm_d', icon: '<path d="M20 6 9 17l-5-5"/>' }
+];
+const REASONS = ['application', 'internal', 'leaving', 'personal'];
+const FOCUS = ['leadership', 'projects', 'customer', 'expertise', 'teamwork', 'sales'];
+const DELIVERY = ['pdf', 'print'];
+const LETTER_LANGS = ['De', 'Fr', 'It', 'En'];
+
 // — State —
 const state = {
   step: 1,
-  type: 'illness',
-  start: new Date(now),
-  durationKey: 'd3',
-  note: '',
-  certFile: null,
-  later: false
+  type: 'final',
+  typeAck: false,
+  reason: 'application',
+  focus: new Set(),
+  needed: addWorkdays(now, 14),
+  letterLang: { de: 'De', fr: 'Fr', es: 'En', ja: 'En', 'en-GB': 'En', 'en-US': 'En' }[LANG],
+  delivery: 'pdf',
+  note: ''
 };
-
-// Duration options: value in days used to compute the certificate deadline
-const DURATIONS = [
-  { key: 'half', days: 0.5, label: () => t.durHalf },
-  { key: 'd2',   days: 2,   label: () => tr('durDays', { n: 2 }) },
-  { key: 'd3',   days: 3,   label: () => tr('durDays', { n: 3 }) },
-  { key: 'd5',   days: 5,   label: () => tr('durDays', { n: 5 }) },
-  { key: 'week', days: 7,   label: () => t.durWeek },
-  { key: 'more', days: 10,  label: () => t.durMore }
-];
-const durByKey = k => DURATIONS.find(d => d.key === k) || DURATIONS[2];
-
-// Certificate becomes mandatory from the 5th day of illness
-function certRequired() { return durByKey(state.durationKey).days >= 5; }
-function certDeadline() {
-  // Deadline = first day + 5 calendar days
-  const d = new Date(state.start); d.setDate(d.getDate() + 5); return d;
-}
 
 // — i18n static —
 function applyTranslations() {
@@ -766,24 +761,72 @@ function applySBBrand() {
   } catch (e) { /* cross-origin — CSS fallback applies */ }
 }
 
-// — Rendering helpers —
 const $ = sel => document.querySelector(sel);
+function iconCheck() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
+function langLabel(code) { return t['lang' + code]; }
 
-function buildDurationSelect() {
-  const sel = $('#cwDuration');
-  sel.innerHTML = DURATIONS.map(d => `<option value="${d.key}">${d.label()}</option>`).join('');
-  sel.value = state.durationKey;
+// — Builders —
+function buildTypes() {
+  $('#cwTypes').innerHTML = TYPES.map(ty => `
+    <div class="cw-type-opt ${ty.key === state.type ? 'sel' : ''}" data-type="${ty.key}">
+      <div class="cw-type-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ty.icon}</svg></div>
+      <div class="cw-type-meta">
+        <div class="cw-type-name">${t[ty.name]}</div>
+        <div class="cw-type-desc">${t[ty.desc]}</div>
+      </div>
+      <div class="cw-type-check">${iconCheck()}</div>
+    </div>`).join('');
+  document.querySelectorAll('#cwTypes .cw-type-opt').forEach(el => {
+    el.onclick = () => {
+      state.type = el.dataset.type;
+      state.typeAck = false; // re-confirm if the choice changes
+      document.querySelectorAll('#cwTypes .cw-type-opt').forEach(o => o.classList.toggle('sel', o === el));
+    };
+  });
 }
 
-function iconCheck() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; }
+function buildReason() {
+  const sel = $('#cwReason');
+  sel.innerHTML = REASONS.map(r => `<option value="${r}">${t['r_' + r]}</option>`).join('');
+  sel.value = state.reason;
+  sel.onchange = e => { state.reason = e.target.value; };
+}
 
+function buildChips() {
+  const wrap = $('#cwChips');
+  wrap.innerHTML = FOCUS.map(f => `<span class="cw-chip ${state.focus.has(f) ? 'sel' : ''}" data-focus="${f}">${t['f_' + f]}</span>`).join('');
+  wrap.querySelectorAll('.cw-chip').forEach(c => {
+    c.onclick = () => {
+      const k = c.dataset.focus;
+      if (state.focus.has(k)) state.focus.delete(k); else state.focus.add(k);
+      c.classList.toggle('sel');
+    };
+  });
+  // Emphasis only applies to assessed references
+  $('#cwFocusField').style.display = state.type === 'confirm' ? 'none' : '';
+}
+
+function buildLangSelect() {
+  const sel = $('#cwLangSel');
+  sel.innerHTML = LETTER_LANGS.map(c => `<option value="${c}">${langLabel(c)}</option>`).join('');
+  sel.value = state.letterLang;
+  sel.onchange = e => { state.letterLang = e.target.value; };
+}
+
+function buildDelivery() {
+  const sel = $('#cwDelivery');
+  sel.innerHTML = DELIVERY.map(d => `<option value="${d}">${t['d_' + d]}</option>`).join('');
+  sel.value = state.delivery;
+  sel.onchange = e => { state.delivery = e.target.value; };
+}
+
+// — Rendering —
 function renderStepper() {
   document.querySelectorAll('.cw-step').forEach(el => {
     const n = +el.dataset.step;
     el.classList.toggle('active', n === state.step);
     el.classList.toggle('done', n < state.step);
-    const dot = el.querySelector('.cw-step-dot');
-    dot.innerHTML = n < state.step ? iconCheck() : String(n);
+    el.querySelector('.cw-step-dot').innerHTML = n < state.step ? iconCheck() : String(n);
   });
 }
 
@@ -791,104 +834,71 @@ function renderPanels() {
   document.querySelectorAll('.cw-panel').forEach(p => p.classList.toggle('active', +p.dataset.panel === state.step));
 }
 
-function renderStep2() {
-  const dl = $('#cwDeadline');
-  if (certRequired()) {
-    dl.textContent = tr('deadlineTxt', { date: fmtDate(certDeadline()) });
-  } else {
-    dl.textContent = t.deadlineOk;
-  }
-}
+function typeName() { return t[TYPES.find(x => x.key === state.type).name]; }
 
-function renderFile() {
-  const wrap = $('#cwFileWrap');
-  if (!state.certFile) { wrap.innerHTML = ''; return; }
-  const f = state.certFile;
-  const kb = f.size > 1024 * 1024 ? (f.size / 1024 / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(f.size / 1024)) + ' KB';
-  wrap.innerHTML = `
-    <div class="cw-file">
-      <div class="cw-file-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>
-      <div class="cw-file-meta">
-        <div class="cw-file-name">${f.name}</div>
-        <div class="cw-file-size">${kb}</div>
-      </div>
-      <button class="cw-file-x" id="cwRemoveFile" aria-label="remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </div>`;
-  $('#cwRemoveFile').onclick = () => { state.certFile = null; renderFile(); };
+function focusSummary() {
+  if (state.type === 'confirm' || state.focus.size === 0) return t.none;
+  return [...state.focus].map(f => t['f_' + f]).join(', ');
 }
 
 function renderSummary() {
-  const rows = [];
-  const typeLabel = state.type === 'illness' ? t.typeIllness : t.typeAccident;
-  rows.push([t.sumType, typeLabel]);
-  rows.push([t.sumStart, fmtDate(state.start)]);
-  rows.push([t.sumDuration, durByKey(state.durationKey).label()]);
-  rows.push([t.sumManager, MANAGER]);
-  rows.push([t.sumNote, state.note.trim() || t.none]);
-
-  let certVal;
-  if (state.certFile) certVal = `<span class="cw-badge ok">${iconCheck()}${t.certUploaded}</span>`;
-  else if (!certRequired() && !state.later) certVal = `<span class="cw-badge neutral">${t.certNone}</span>`;
-  else certVal = `<span class="cw-badge pend">${t.certLater}</span>`;
-  rows.push([t.sumCert, certVal]);
-
+  const rows = [
+    [t.sumType, typeName()],
+    [t.sumReason, t['r_' + state.reason]],
+    [t.sumFocus, focusSummary()],
+    [t.sumNeeded, fmtDate(state.needed)],
+    [t.sumLang, langLabel(state.letterLang)],
+    [t.sumDelivery, t['d_' + state.delivery]],
+    [t.sumNote, state.note.trim() || t.none]
+  ];
   $('#cwSummary').innerHTML = rows.map(([k, v]) =>
     `<div class="cw-sum-row"><span class="cw-sum-k">${k}</span><span class="cw-sum-v">${v}</span></div>`
   ).join('');
-  $('#cwPrivacy').textContent = t.privacy;
+  $('#cwProcessing').textContent = tr('processing', { name: HR_CONTACT });
 }
 
 function genRef() {
   const y = now.getFullYear();
   const n = Math.floor(1000 + Math.random() * 9000);
-  return `SL-${y}-${n}`;
+  return `RL-${y}-${n}`;
+}
+
+function readyDate() {
+  const byProcess = addWorkdays(now, 10);
+  return state.needed > byProcess ? byProcess : state.needed;
 }
 
 function renderDone() {
-  let txt;
-  if (state.certFile) txt = tr('doneUploaded', { name: MANAGER });
-  else if (certRequired() || state.later) txt = tr('doneLater', { date: fmtDate(certDeadline()) });
-  else txt = tr('doneNone', { name: MANAGER });
-  $('#cwDoneText').textContent = txt;
+  $('#cwDoneText').textContent = tr('doneText', { name: HR_CONTACT, date: fmtDate(readyDate()) });
   $('#cwRef').textContent = genRef();
   renderHistory();
 }
 
 function renderHistory() {
-  // The just-submitted report plus two historical ones, anchored to runtime dates
-  const items = [];
-  // current
-  items.push({
-    start: state.start,
-    days: durByKey(state.durationKey).days,
-    status: (state.certRequiredAtSubmit && !state.certFileAtSubmit) ? 'open' : 'approved'
-  });
-  items.push({ start: daysAgo(24), days: 2, status: 'closed' });
-  items.push({ start: daysAgo(58), days: 4, status: 'closed' });
-
-  const statusMap = {
-    open:     { color: 'var(--warning)', label: t.stOpen },
-    approved: { color: 'var(--success)', label: t.stApproved },
-    closed:   { color: 'var(--text-light)', label: t.stClosed }
+  const items = [
+    { type: typeName(), date: now, status: 'processing' },
+    { type: t.t_interim_n, date: daysAgo(12), status: 'review' },
+    { type: t.t_confirm_n, date: daysAgo(47), status: 'done' }
+  ];
+  const map = {
+    processing: { color: 'var(--warning)', label: t.stProcessing, cls: 'pend' },
+    review:     { color: 'var(--primary)', label: t.stReview, cls: 'neutral' },
+    done:       { color: 'var(--success)', label: t.stDone, cls: 'ok' }
   };
-
   $('#cwHistory').innerHTML = items.map(it => {
-    const s = statusMap[it.status];
-    const dayLabel = it.days < 1 ? t.durHalf : tr('hDays', { n: it.days });
-    const badgeClass = it.status === 'open' ? 'pend' : (it.status === 'approved' ? 'ok' : 'neutral');
+    const s = map[it.status];
     return `
       <div class="cw-hist-item">
         <span class="cw-hist-dot" style="background:${s.color}"></span>
         <div class="cw-hist-meta">
-          <div class="cw-hist-title">${tr('hFrom', { date: fmtShort(it.start) })}</div>
-          <div class="cw-hist-sub">${dayLabel}</div>
+          <div class="cw-hist-title">${it.type}</div>
+          <div class="cw-hist-sub">${fmtShort(it.date)}</div>
         </div>
-        <span class="cw-badge ${badgeClass}">${s.label}</span>
+        <span class="cw-badge ${s.cls}">${s.label}</span>
       </div>`;
   }).join('');
 }
 
-// — Footer / navigation —
 function renderFooter() {
   const back = $('#cwBack');
   const next = $('#cwNext');
@@ -901,9 +911,8 @@ function renderFooter() {
     nextLabel.textContent = t.submit;
     nextIcon.style.display = 'none';
   } else if (state.step === 4) {
-    nextLabel.textContent = t.newReport;
+    nextLabel.textContent = t.newReq;
     nextIcon.style.display = 'none';
-    back.style.visibility = 'hidden';
   } else {
     nextLabel.textContent = t.next;
     nextIcon.style.display = '';
@@ -913,52 +922,62 @@ function renderFooter() {
 function render() {
   renderStepper();
   renderPanels();
-  if (state.step === 2) renderStep2();
+  if (state.step === 2) buildChips();
   if (state.step === 3) renderSummary();
   if (state.step === 4) renderDone();
   renderFooter();
 }
 
-function goNext() {
-  if (state.step === 2) {
-    // Require a certificate when mandatory, unless "submit later" is chosen
-    if (certRequired() && !state.certFile && !state.later) {
-      const drop = $('#cwDrop');
-      drop.style.borderColor = 'var(--danger)';
-      $('#cwFileWrap').insertAdjacentHTML('afterend', `<div class="cw-hint" id="cwErr" style="color:var(--danger);margin-top:8px;">${t.uploadErr}</div>`);
-      setTimeout(() => { const e = $('#cwErr'); if (e) e.remove(); drop.style.borderColor = ''; }, 3500);
-      return;
-    }
-  }
-  if (state.step === 3) {
-    // snapshot for history status
-    state.certRequiredAtSubmit = certRequired();
-    state.certFileAtSubmit = !!state.certFile;
-  }
+function advance() {
   if (state.step === 4) { resetFlow(); return; }
   state.step = Math.min(4, state.step + 1);
   render();
 }
-
+function goNext() {
+  // After choosing a full reference (not a plain confirmation), make sure
+  // the user really needs one — a confirmation is often enough.
+  if (state.step === 1 && state.type !== 'confirm' && !state.typeAck) {
+    openTypeModal();
+    return;
+  }
+  advance();
+}
 function goBack() {
   state.step = Math.max(1, state.step - 1);
   render();
 }
 
+// — Confirmation modal —
+function openTypeModal() { $('#cwModal').classList.add('show'); }
+function closeTypeModal() { $('#cwModal').classList.remove('show'); }
+function modalKeepReference() {
+  state.typeAck = true;
+  closeTypeModal();
+  advance();
+}
+function modalSwitchToConfirmation() {
+  state.type = 'confirm';
+  state.typeAck = true;
+  buildTypes();
+  closeTypeModal();
+  advance();
+}
+
 function resetFlow() {
   state.step = 1;
-  state.type = 'illness';
-  state.start = new Date(now);
-  state.durationKey = 'd3';
+  state.type = 'final';
+  state.typeAck = false;
+  state.reason = 'application';
+  state.focus = new Set();
+  state.needed = addWorkdays(now, 14);
+  state.delivery = 'pdf';
   state.note = '';
-  state.certFile = null;
-  state.later = false;
-  $('#cwStart').value = toInputVal(state.start);
-  $('#cwDuration').value = state.durationKey;
+  buildTypes();
+  buildReason();
+  buildChips();
+  buildDelivery();
+  $('#cwNeeded').value = toInputVal(state.needed);
   $('#cwNote').value = '';
-  $('#cwLater').checked = false;
-  renderFile();
-  document.querySelectorAll('#cwType .cw-choice-opt').forEach(o => o.classList.toggle('sel', o.dataset.val === 'illness'));
   render();
 }
 
@@ -967,36 +986,24 @@ function init() {
   applySBBrand();
   applyTranslations();
 
-  $('#cwStart').value = toInputVal(state.start);
-  $('#cwStart').max = toInputVal(new Date(now));
-  buildDurationSelect();
-  $('#cwMgrHint').textContent = tr('mgrHint', { name: MANAGER });
+  buildTypes();
+  buildReason();
+  buildChips();
+  buildLangSelect();
+  buildDelivery();
 
-  // Type choice
-  document.querySelectorAll('#cwType .cw-choice-opt').forEach(opt => {
-    opt.onclick = () => {
-      document.querySelectorAll('#cwType .cw-choice-opt').forEach(o => o.classList.remove('sel'));
-      opt.classList.add('sel');
-      state.type = opt.dataset.val;
-    };
-  });
+  const needed = $('#cwNeeded');
+  needed.value = toInputVal(state.needed);
+  needed.min = toInputVal(now);
+  needed.onchange = e => { state.needed = new Date(e.target.value + 'T00:00:00'); };
 
-  $('#cwStart').onchange = e => { state.start = new Date(e.target.value + 'T00:00:00'); };
-  $('#cwDuration').onchange = e => { state.durationKey = e.target.value; };
   $('#cwNote').oninput = e => { state.note = e.target.value; };
-
-  // Upload
-  const drop = $('#cwDrop');
-  const input = $('#cwFileInput');
-  drop.onclick = () => input.click();
-  input.onchange = e => { if (e.target.files[0]) { state.certFile = e.target.files[0]; state.later = false; $('#cwLater').checked = false; renderFile(); } };
-  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-  drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) { state.certFile = f; state.later = false; $('#cwLater').checked = false; renderFile(); } });
-  $('#cwLater').onchange = e => { state.later = e.target.checked; if (e.target.checked) { state.certFile = null; renderFile(); } };
 
   $('#cwNext').onclick = goNext;
   $('#cwBack').onclick = goBack;
+  $('#cwModalKeep').onclick = modalKeepReference;
+  $('#cwModalSwitch').onclick = modalSwitchToConfirmation;
+  $('#cwModal').addEventListener('click', e => { if (e.target.id === 'cwModal') closeTypeModal(); });
 
   render();
 }
